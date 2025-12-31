@@ -1,21 +1,21 @@
 # AppDeudas
 ## Configuracion
+### Base de datos
 
 <details>
-<Summary>Base de datos</Summary>
-
-### Base de datos
+<Summary>SQL Database</Summary>
 
 ![Database Diagram](./Relational%20Database.png)
 
 Tablas: 
-- User
+- User:
     Id, Email, Password
-- Debt_States
+- Debt_States:
     Id, StateName
-- Debt
+- Debt:
     Id, Amount, CreationDate, UserId, StateId
 
+Crear una base de datos postgresql local, en ella crear las tablas y columnas con el siguiente SQL:
 ```SQL
 -- Independent Tables --
 CREATE TABLE APP_USER (
@@ -50,5 +50,19 @@ INSERT INTO APP_USER (EMAIL, PASSWORD) VALUES ('julian@gmail.com', 'pass2');
 INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (1000, CURRENT_DATE, 1, 1);
 INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (2000, CURRENT_DATE, 1, 2);
 INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (3000, CURRENT_DATE, 2, 3);
+```
+</details>
+
+### Backend
+<details>
+<Summary>Backend</Summary>
+1.Crear un archivo .env en la carpeta server y cambiar las variables con el de su postgresql local:
+```
+DB_USER=postgres
+DB_PASSWORD=postgres_password
+DB_HOST=localhost
+DB_NAME=postgres_db_name
+DB_PORT=5432
+PORT=5000
 ```
 </details>
