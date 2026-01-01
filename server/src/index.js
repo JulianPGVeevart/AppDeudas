@@ -1,12 +1,14 @@
 const express = require('express');
 const app = express();
 const userRoutes = require('#routes/userRoutes');
+const debtRoutes = require('#routes/debtRoutes');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Mount the modular routes
 app.use('/api/', userRoutes);
+app.use('/api/debts', debtRoutes);
 
 // Global error handler to catch JSON syntax errors
 app.use((err, req, res, next) => {

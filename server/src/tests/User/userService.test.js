@@ -1,5 +1,6 @@
 const userService = require('#services/userService');
 const userModel = require('#models/User');
+const usersMock = require('../mocks/UsersMock.json');
 
 // Mock the database connection to prevent actual connection attempts during tests
 jest.mock('#database/db', () => ({
@@ -16,12 +17,12 @@ describe('User Service', () => {
 
     describe('createUser', () => {
         it('should create a new user successfully', async () => {
-            const mockUser = { id: 1, email: 'test@example.com' };
+            const mockUser = usersMock[0];
             userModel.create.mockResolvedValue(mockUser);
 
-            const result = await userService.createUser('test@example.com', 'password123');
+            const result = await userService.createUser(mockUser.email, mockUser.password);
 
-            expect(userModel.create).toHaveBeenCalledWith({ email: 'test@example.com', password: 'password123' });
+            expect(userModel.create).toHaveBeenCalledWith({ email: 'user1@mail.com', password: 'testpass1' });
             expect(result).toEqual(mockUser);
         });
 
@@ -31,20 +32,20 @@ describe('User Service', () => {
 
             const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-            await expect(userService.createUser('test@example.com', 'password123')).rejects.toThrow('Database error');
+            await expect(userService.createUser('user1@mail.com', 'testpass1')).rejects.toThrow('Database error');
             
             expect(consoleSpy).toHaveBeenCalledWith('Error creating user:', error);
             consoleSpy.mockRestore();
         });
 
         it('should throw an error if email already exists', async () => {
-            const error = new Error('Key (email)=(test@example.com) already exists');
-            error.detail = 'Key (email)=(test@example.com) already exists';
+            const error = new Error('Key (email)=(user1@mail.com) already exists');
+            error.detail = 'Key (email)=(user1@mail.com) already exists';
             userModel.create.mockRejectedValue(error);
             
             const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-            await expect(userService.createUser('test@example.com', 'password123')).rejects.toThrow('Key (email)=(test@example.com) already exists');
+            await expect(userService.createUser('user1@mail.com', 'testpass1')).rejects.toThrow('Key (email)=(user1@mail.com) already exists');
 
             expect(consoleSpy).toHaveBeenCalledWith('Error creating user:', error);
             expect(error.detail).toBe('User already exists');
@@ -54,12 +55,12 @@ describe('User Service', () => {
 
     describe('findUserWithCredentials', () => {
         it('should return user when credentials are valid', async () => {
-            const mockUser = { id: 1, email: 'test@example.com' };
+            const mockUser = usersMock[0];
             userModel.findUserWithCredentials.mockResolvedValue(mockUser);
 
-            const result = await userService.findUserWithCredentials('test@example.com', 'password123');
+            const result = await userService.findUserWithCredentials(mockUser.email, mockUser.password);
 
-            expect(userModel.findUserWithCredentials).toHaveBeenCalledWith('test@example.com', 'password123');
+            expect(userModel.findUserWithCredentials).toHaveBeenCalledWith('user1@mail.com', 'testpass1');
             expect(result).toEqual(mockUser);
         });
 
@@ -69,7 +70,7 @@ describe('User Service', () => {
 
             const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-            await expect(userService.findUserWithCredentials('test@example.com', 'password123')).rejects.toThrow('Database error');
+            await expect(userService.findUserWithCredentials('user1@mail.com', 'testpass1')).rejects.toThrow('Database error');
 
             expect(consoleSpy).toHaveBeenCalledWith('Error getting user by email and password:', error);
             consoleSpy.mockRestore();
