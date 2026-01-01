@@ -1,13 +1,13 @@
-const userService = require('../services/userService');
-const userModel = require('../models/User');
+const userService = require('#services/userService');
+const userModel = require('#models/User');
 
 // Mock the database connection to prevent actual connection attempts during tests
-jest.mock('../../database/db', () => ({
+jest.mock('#database/db', () => ({
     query: jest.fn(),
 }));
 
 // Mock the userModel to isolate service logic
-jest.mock('../models/User');
+jest.mock('#models/User');
 
 describe('User Service', () => {
     afterEach(() => {

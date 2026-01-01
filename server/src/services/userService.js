@@ -1,5 +1,5 @@
-const pool = require('../../database/db'); // Your PG connection
-const userModel = require('../models/User');
+const pool = require('#database/db'); // Your PG connection
+const userModel = require('#models/User');
 
 const createUser = async (email, password) => {
     try {

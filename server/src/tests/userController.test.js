@@ -1,8 +1,8 @@
-const userController = require('../controllers/userController');
-const userService = require('../services/userService');
+const userController = require('#controllers/userController');
+const userService = require('#services/userService');
 
 // Mock the userService to isolate controller logic
-jest.mock('../services/userService');
+jest.mock('#services/userService');
 
 describe('User Controller', () => {
     let req, res, next;

@@ -1,6 +1,5 @@
-const pool = require('../../database/db');
-const tables = require('../../database/tables');
-
+const pool = require('#database/db');
+const tables = require('#database/tables');
 
 class User {
     // Create a new user

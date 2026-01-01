@@ -1,4 +1,4 @@
- const userService = require('../services/userService');
+ const userService = require('#services/userService');
 
 exports.findUserWithCredentials = async (req, res, next) => {
     const { email, password } = req.body;
