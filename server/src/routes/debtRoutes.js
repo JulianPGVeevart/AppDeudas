@@ -7,7 +7,7 @@ router.get('/', debtController.getAllDebtsByUserId);
 router.get('/detail/:debtId', debtController.getDebtById);
 router.get('/create', debtController.getDebtStates);
 
-//router.post('/create', debtController.createDebt);
+router.post('/create', debtController.createDebt);
 //router.post('/edit', debtController.updateDebt);
 //router.post('/delete', debtController.deleteDebt);
 

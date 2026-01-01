@@ -9,6 +9,7 @@ jest.mock('#services/debtService', () => ({
     getAllDebtsByUserId: jest.fn(),
     getDebtStates: jest.fn(),
     getDebtById: jest.fn(),
+    createDebt: jest.fn(),
 }));
 
 const debtService = require('#services/debtService');
@@ -90,6 +91,66 @@ describe('Debt Controller', () => {
             expect(debtService.getDebtById).toHaveBeenCalledWith('debt123');
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(debtsMock[0]);
+        });
+    });
+
+    describe('createDebt', () => {
+        it('should return 400 if userId is missing', async () => {
+            req.body = { amount: 1000, stateId: 1 };
+            await debtController.createDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'User ID is required' });
+        });
+
+        it('should return 400 if amount is missing', async () => {
+            req.body = { userId: 1, stateId: 1 };
+            await debtController.createDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Amount is required' });
+        });
+
+        it('should return 400 if stateId is missing', async () => {
+            req.body = { userId: 1, amount: 1000 };
+            await debtController.createDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Debt state ID is required' });
+        });
+
+        it('should return 400 if amount is not positive', async () => {
+            req.body = { userId: 1, amount: 0, stateId: 1 };
+            await debtController.createDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Amount must be a positive number' });
+        });
+
+        it('should create a debt successfully', async () => {
+            req.body = { userId: 1, amount: 1000, stateId: 1 };
+            const mockCreatedDebt = { id: 5, user_id: 1, amount: '1000.00', creation_date: new Date().toISOString(), state_id: 1 };
+            debtService.createDebt.mockResolvedValue(mockCreatedDebt);
+
+            await debtController.createDebt(req, res, next);
+
+            expect(debtService.createDebt).toHaveBeenCalledWith({
+                user_id: 1,
+                amount: 1000,
+                creation_date: expect.any(String),
+                state_id: 1
+            });
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith(mockCreatedDebt);
+        });
+
+        it('should handle service errors', async () => {
+            req.body = { userId: 1, amount: 1000, stateId: 1 };
+            const error = new Error('Database error');
+            error.detail = 'Database error';
+            debtService.createDebt.mockRejectedValue(error);
+
+            await debtController.createDebt(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
+            expect(next).toHaveBeenCalledWith(error);
         });
     });
 });

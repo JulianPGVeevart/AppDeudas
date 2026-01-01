@@ -1,6 +1,7 @@
 const debtModel = require('#models/Debt');
 const debtStatesModel = require('#models/DebtStates');
 
+//GET
 const getAllDebtsByUserId = async (userId) => {
     try {
         const debts = await debtModel.getAllDebtsByUserId(userId);
@@ -10,6 +11,7 @@ const getAllDebtsByUserId = async (userId) => {
         throw error;
     }
 };
+exports.getAllDebtsByUserId = getAllDebtsByUserId;
 
 const getDebtStates = async () => {
     try {
@@ -20,6 +22,7 @@ const getDebtStates = async () => {
         throw error;
     }
 };
+exports.getDebtStates = getDebtStates;
 
 const getDebtById = async (debtId) => {
     try {
@@ -30,8 +33,20 @@ const getDebtById = async (debtId) => {
         throw error;
     }
 };
-
-
-exports.getAllDebtsByUserId = getAllDebtsByUserId;
-exports.getDebtStates = getDebtStates;
 exports.getDebtById = getDebtById;
+
+
+//POST
+const createDebt = async (debtData) => {
+    try {
+        const newDebt = await debtModel.createDebt(debtData);
+        return newDebt;
+    } catch (error) {
+        if(error.detail?.includes('Key (user_id)') && error.detail?.includes('is not present in table')) {
+            error.detail = 'User does not exist';
+        }
+        console.error('Error creating debt:', error);
+        throw error;
+    }
+};
+exports.createDebt = createDebt;

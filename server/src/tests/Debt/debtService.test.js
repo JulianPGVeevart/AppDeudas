@@ -92,4 +92,60 @@ describe('Debt Service', () => {
             consoleSpy.mockRestore();
         });
     });
+
+    describe('createDebt', () => {
+        it('should create a new debt successfully', async () => {
+            const debtData = {
+                user_id: 1,
+                amount: 1000.00,
+                creation_date: new Date(),
+                state_id: 1
+            };
+            const mockCreatedDebt = { id: 5, ...debtData };
+            debtModel.createDebt.mockResolvedValue(mockCreatedDebt);
+
+            const result = await debtService.createDebt(debtData);
+
+            expect(debtModel.createDebt).toHaveBeenCalledWith(debtData);
+            expect(result).toEqual(mockCreatedDebt);
+        });
+
+        it('should throw and log an error if creation fails', async () => {
+            const debtData = {
+                user_id: 1,
+                amount: 1000.00,
+                creation_date: new Date(),
+                state_id: 1
+            };
+            const error = new Error('Database error');
+            debtModel.createDebt.mockRejectedValue(error);
+
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            await expect(debtService.createDebt(debtData)).rejects.toThrow('Database error');
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error creating debt:', error);
+            consoleSpy.mockRestore();
+        });
+
+        it('should throw an error with custom message if user does not exist', async () => {
+            const debtData = {
+                user_id: 999,
+                amount: 1000.00,
+                creation_date: new Date(),
+                state_id: 1
+            };
+            const error = new Error('Foreign key violation');
+            error.detail = 'Key (user_id)=(999) is not present in table "APP_USER"';
+            debtModel.createDebt.mockRejectedValue(error);
+
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            await expect(debtService.createDebt(debtData)).rejects.toThrow('Foreign key violation');
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error creating debt:', error);
+            expect(error.detail).toBe('User does not exist');
+            consoleSpy.mockRestore();
+        });
+    });
 });
