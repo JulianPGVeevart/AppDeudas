@@ -7,6 +7,9 @@ const createUser = async (email, password) => {
         return newUser;
     }
     catch (error) {
+        if(error.detail?.includes('already exists')) {
+            error.detail = 'User already exists';
+        }
         console.error('Error creating user:', error);
         throw error;
     }

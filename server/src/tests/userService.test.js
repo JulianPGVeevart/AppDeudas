@@ -36,6 +36,20 @@ describe('User Service', () => {
             expect(consoleSpy).toHaveBeenCalledWith('Error creating user:', error);
             consoleSpy.mockRestore();
         });
+
+        it('should throw an error if email already exists', async () => {
+            const error = new Error('Key (email)=(test@example.com) already exists');
+            error.detail = 'Key (email)=(test@example.com) already exists';
+            userModel.create.mockRejectedValue(error);
+            
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            await expect(userService.createUser('test@example.com', 'password123')).rejects.toThrow('Key (email)=(test@example.com) already exists');
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error creating user:', error);
+            expect(error.detail).toBe('User already exists');
+            consoleSpy.mockRestore();
+        });
     });
 
     describe('findUserWithCredentials', () => {

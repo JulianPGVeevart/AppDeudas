@@ -87,11 +87,14 @@ describe('User Controller', () => {
         });
 
         it('should call next with error if service throws an exception', async () => {
-            const error = new Error('User already exists');
+            const error = new Error('Email already exists');
+            error.detail = 'Key (email)=(new@example.com) already exists';
             req.body = { email: 'new@example.com', password: 'password123' };
             userService.createUser.mockRejectedValue(error);
 
             await userController.createUser(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Key (email)=(new@example.com) already exists' });
             expect(next).toHaveBeenCalledWith(error);
         });
     });

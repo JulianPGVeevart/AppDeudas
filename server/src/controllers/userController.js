@@ -12,6 +12,7 @@ exports.findUserWithCredentials = async (req, res, next) => {
         }
         res.status(200).json(user);
     } catch (error) {
+        res.status(400).json({ message: error.detail });
         next(error);
     }
 };
@@ -31,6 +32,7 @@ exports.createUser = async (req, res, next) => {
         const newUser = await userService.createUser(email, password);
         res.status(201).json(newUser);
     } catch (error) {
+        res.status(400).json({ message: error.detail });
         next(error);
     }
 };
