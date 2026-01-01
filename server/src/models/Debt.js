@@ -12,11 +12,12 @@ class Debt {
         return rows;
     }
 
-    static async getDebtById(debtId) {
+    static async getDebtById(debtId, userId) {
+        //validate user ownership when consulting details from debts that are only theirs
         const query = `
-            SELECT * FROM ${tables.DEBT} WHERE ID = $1;
+            SELECT * FROM ${tables.DEBT} WHERE ID = $1 AND USER_ID = $2;
         `;
-        const values = [debtId];
+        const values = [debtId, userId];
         const { rows } = await pool.query(query, values);
         return rows[0];
     }
@@ -29,6 +30,22 @@ class Debt {
             RETURNING *;
         `;
         const values = [debtData.user_id, debtData.amount, debtData.creation_date, debtData.state_id];
+        const { rows } = await pool.query(query, values);
+        return rows[0];
+    }
+
+    //PUT
+    static async updateDebt(debtData) {
+        //Paid debts must not be modified
+        //validate the userId to avoid updating others debts
+        const PAID_STATE_ID = 3;
+        const query = `
+            UPDATE ${tables.DEBT}
+            SET AMOUNT = $1, STATE_ID = $2
+            WHERE ID = $3 AND STATE_ID != ${PAID_STATE_ID} AND USER_ID = $4
+            RETURNING *;
+        `;
+        const values = [debtData.amount, debtData.state_id, debtData.id, debtData.user_id];
         const { rows } = await pool.query(query, values);
         return rows[0];
     }

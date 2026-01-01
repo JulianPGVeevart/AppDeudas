@@ -27,17 +27,24 @@ exports.getDebtStates = async (req, res, next) => {
 
 exports.getDebtById = async (req, res, next) => {
     try {
-        const debtId = req.params.debtId;
+        const [debtId, userId] = [req.params.debtId, req.body?.userId];
         if(!debtId) {
             return res.status(400).json({ message: 'Debt ID is required' });
         }
-        const debt = await debtService.getDebtById(debtId);
+        if(!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+        const debt = await debtService.getDebtById(debtId, userId);
+        if(!debt) {
+            return res.status(404).json({ message: 'Debt not found for this user' });
+        }
         res.status(200).json(debt);
     } catch (error) {
         res.status(400).json({ message: error.detail });
         next(error);
     }
 };
+
 
 //POST
 exports.createDebt = async (req, res, next) => {
@@ -58,6 +65,9 @@ function getValidDebtData(data) {
         creation_date: data.creationDate || new Date().toISOString(),
         state_id: data.stateId
     };
+    if(data.id) {
+        debtData.id = data.id;
+    }
     validateData(debtData);
     return debtData;
 }
@@ -83,3 +93,21 @@ function validateData(debtData) {
         throw error;
     }
 }
+
+//PUT
+exports.updateDebt = async (req, res, next) => {
+    try {
+        const debtData = getValidDebtData(req.body);
+        if(!debtData.id) {
+            return res.status(400).json({ message: 'Debt ID is required to update it' });
+        }
+        const updatedDebt = await debtService.updateDebt(debtData);
+        if(!updatedDebt) {
+            return res.status(400).json({ message: 'Debt not found or already Paid' });
+        }
+        res.status(200).json(updatedDebt);
+    } catch (error) {
+        res.status(400).json({ message: error.detail });
+        next(error);
+    }
+};

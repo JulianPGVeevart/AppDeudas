@@ -70,23 +70,25 @@ describe('Debt Service', () => {
     describe('getDebtById', () => {
         it('should return a debt by ID', async () => {
             const debtId = 1;
-            const expectedDebt = debtsMock.find(debt => debt.id === debtId);
+            const userId = 1;
+            const expectedDebt = debtsMock.find(debt => debt.id === debtId && debt.user_id === userId);
             debtModel.getDebtById.mockResolvedValue(expectedDebt);
 
-            const result = await debtService.getDebtById(debtId);
+            const result = await debtService.getDebtById(debtId, userId);
 
-            expect(debtModel.getDebtById).toHaveBeenCalledWith(debtId);
+            expect(debtModel.getDebtById).toHaveBeenCalledWith(debtId, userId);
             expect(result).toEqual(expectedDebt);
         });
 
         it('should throw and log an error if getting debt by ID fails', async () => {
             const debtId = 1;
+            const userId = 1;
             const error = new Error('Database error');
             debtModel.getDebtById.mockRejectedValue(error);
 
             const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-            await expect(debtService.getDebtById(debtId)).rejects.toThrow('Database error');
+            await expect(debtService.getDebtById(debtId, userId)).rejects.toThrow('Database error');
 
             expect(consoleSpy).toHaveBeenCalledWith('Error getting debt by ID:', error);
             consoleSpy.mockRestore();
@@ -145,6 +147,42 @@ describe('Debt Service', () => {
 
             expect(consoleSpy).toHaveBeenCalledWith('Error creating debt:', error);
             expect(error.detail).toBe('User does not exist');
+            consoleSpy.mockRestore();
+        });
+    });
+
+    describe('updateDebt', () => {
+        it('should update a debt successfully', async () => {
+            const debtData = {
+                id: 1,
+                user_id: 1,
+                amount: 1500.00,
+                state_id: 2
+            };
+            const mockUpdatedDebt = { ...debtsMock[0], amount: '1500.00', state_id: 2 };
+            debtModel.updateDebt.mockResolvedValue(mockUpdatedDebt);
+
+            const result = await debtService.updateDebt(debtData);
+
+            expect(debtModel.updateDebt).toHaveBeenCalledWith(debtData);
+            expect(result).toEqual(mockUpdatedDebt);
+        });
+
+        it('should throw and log an error if updating debt fails', async () => {
+            const debtData = {
+                id: 1,
+                user_id: 1,
+                amount: 1500.00,
+                state_id: 2
+            };
+            const error = new Error('Database error');
+            debtModel.updateDebt.mockRejectedValue(error);
+
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            await expect(debtService.updateDebt(debtData)).rejects.toThrow('Database error');
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error updating debt:', error);
             consoleSpy.mockRestore();
         });
     });

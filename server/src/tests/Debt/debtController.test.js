@@ -10,6 +10,7 @@ jest.mock('#services/debtService', () => ({
     getDebtStates: jest.fn(),
     getDebtById: jest.fn(),
     createDebt: jest.fn(),
+    updateDebt: jest.fn(),
 }));
 
 const debtService = require('#services/debtService');
@@ -77,20 +78,42 @@ describe('Debt Controller', () => {
     describe('getDebtById', () => {
         it('should return 400 if debtId is missing', async () => {
             req.params = {}; // Missing debtId
+            req.body = { userId: 1 };
             await debtController.getDebtById(req, res, next);
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({ message: 'Debt ID is required' });
         });
 
-        it('should return debt details when debtId is provided', async () => {
-            req.params.debtId = 'debt123';
+        it('should return 400 if userId is missing', async () => {
+            req.params = { debtId: 'debt123' };
+            req.body = {}; // Missing userId
+            await debtController.getDebtById(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'User ID is required' });
+        });
+
+        it('should return debt details when both debtId and userId are provided', async () => {
+            req.params.debtId = '1';
+            req.body.userId = 1;
             debtService.getDebtById.mockResolvedValue(debtsMock[0]);
 
             await debtController.getDebtById(req, res, next);
 
-            expect(debtService.getDebtById).toHaveBeenCalledWith('debt123');
+            expect(debtService.getDebtById).toHaveBeenCalledWith('1', 1);
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(debtsMock[0]);
+        });
+
+        it('should return 404 if debt not found for this user', async () => {
+            req.params.debtId = '1';
+            req.body.userId = 1;
+            debtService.getDebtById.mockResolvedValue(null);
+
+            await debtController.getDebtById(req, res, next);
+
+            expect(debtService.getDebtById).toHaveBeenCalledWith('1', 1);
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Debt not found for this user' });
         });
     });
 
@@ -147,6 +170,84 @@ describe('Debt Controller', () => {
             debtService.createDebt.mockRejectedValue(error);
 
             await debtController.createDebt(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
+            expect(next).toHaveBeenCalledWith(error);
+        });
+    });
+
+    describe('updateDebt', () => {
+        it('should return 400 if userId is missing', async () => {
+            req.body = { id: 1, amount: 1500, stateId: 2 };
+            await debtController.updateDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'User ID is required' });
+        });
+
+        it('should return 400 if amount is missing', async () => {
+            req.body = { id: 1, userId: 1, stateId: 2 };
+            await debtController.updateDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Amount is required' });
+        });
+
+        it('should return 400 if stateId is missing', async () => {
+            req.body = { id: 1, userId: 1, amount: 1500 };
+            await debtController.updateDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Debt state ID is required' });
+        });
+
+        it('should return 400 if debtId is missing', async () => {
+            req.body = { userId: 1, amount: 1500, stateId: 2 };
+            await debtController.updateDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Debt ID is required to update it' });
+        });
+
+        it('should return 400 if amount is not positive', async () => {
+            req.body = { id: 1, userId: 1, amount: 0, stateId: 2 };
+            await debtController.updateDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Amount must be a positive number' });
+        });
+
+        it('should update a debt successfully', async () => {
+            req.body = { id: 1, userId: 1, amount: 1500, stateId: 2 };
+            const mockUpdatedDebt = { id: 1, user_id: 1, amount: '1500.00', creation_date: new Date().toISOString(), state_id: 2 };
+            debtService.updateDebt.mockResolvedValue(mockUpdatedDebt);
+
+            await debtController.updateDebt(req, res, next);
+
+            expect(debtService.updateDebt).toHaveBeenCalledWith({
+                id: 1,
+                user_id: 1,
+                amount: 1500,
+                creation_date: expect.any(String),
+                state_id: 2
+            });
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(mockUpdatedDebt);
+        });
+
+        it('should return 400 if debt not found or already paid', async () => {
+            req.body = { id: 1, userId: 1, amount: 1500, stateId: 2 };
+            debtService.updateDebt.mockResolvedValue(null);
+
+            await debtController.updateDebt(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Debt not found or already Paid' });
+        });
+
+        it('should handle service errors', async () => {
+            req.body = { id: 1, userId: 1, amount: 1500, stateId: 2 };
+            const error = new Error('Database error');
+            error.detail = 'Database error';
+            debtService.updateDebt.mockRejectedValue(error);
+
+            await debtController.updateDebt(req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });

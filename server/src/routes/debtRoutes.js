@@ -7,8 +7,11 @@ router.get('/', debtController.getAllDebtsByUserId);
 router.get('/detail/:debtId', debtController.getDebtById);
 router.get('/create', debtController.getDebtStates);
 
+//POST
 router.post('/create', debtController.createDebt);
-//router.post('/edit', debtController.updateDebt);
 //router.post('/delete', debtController.deleteDebt);
+
+//PUT
+router.put('/edit/:debtId', debtController.updateDebt);
 
 module.exports = router;

@@ -24,9 +24,9 @@ const getDebtStates = async () => {
 };
 exports.getDebtStates = getDebtStates;
 
-const getDebtById = async (debtId) => {
+const getDebtById = async (debtId, userId) => {
     try {
-        const debt = await debtModel.getDebtById(debtId);
+        const debt = await debtModel.getDebtById(debtId, userId);
         return debt;
     } catch (error) {
         console.error('Error getting debt by ID:', error);
@@ -50,3 +50,15 @@ const createDebt = async (debtData) => {
     }
 };
 exports.createDebt = createDebt;
+
+//PUT
+const updateDebt = async (debtData) => {
+    try {
+        const updatedDebt = await debtModel.updateDebt(debtData);
+        return updatedDebt;
+    } catch (error) {
+        console.error('Error updating debt:', error);
+        throw error;
+    }
+};
+exports.updateDebt = updateDebt;
