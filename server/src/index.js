@@ -1,9 +1,15 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const userRoutes = require('#routes/userRoutes');
 const debtRoutes = require('#routes/debtRoutes');
 
-app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests from Vite dev server
+  credentials: true
+}));
+
+app.use(express.json({ type: '*/*' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Mount the modular routes

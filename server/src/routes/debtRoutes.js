@@ -3,11 +3,11 @@ const router = express.Router();
 const debtController = require('#controllers/debtController');
 
 // GET
-router.get('/', debtController.getAllDebtsByUserId);
+router.get('/', debtController.getDebtStates);
 router.get('/detail/:debtId', debtController.getDebtById);
-router.get('/create', debtController.getDebtStates);
 
 //POST
+router.post('/', debtController.getAllDebtsByUserId); // Add POST route for getting debts
 router.post('/create', debtController.createDebt);
 
 //PUT

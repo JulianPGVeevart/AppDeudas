@@ -11,6 +11,7 @@
 main {
   height: 95vh;
   min-width: 100vw;
+  overflow: hidden;
 }
 
 footer {

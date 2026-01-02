@@ -1,4 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { DebtStatesProvider } from './context/DebtStatesContext';
+import { ThemeProvider } from './context/ThemeContext';
 import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/Home/HomePage';
 import LoginPage from './pages/Login/LoginPage';
@@ -18,5 +21,13 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <DebtStatesProvider>
+          <RouterProvider router={router} />
+        </DebtStatesProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
 }
