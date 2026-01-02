@@ -1,23 +1,22 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
+import HomePage from './pages/Home/HomePage';
+import LoginPage from './pages/Login/LoginPage';
+import './styles/App.css';
 
-function App() {
-  const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    axios.get('/api/app_users')
-      .then(res => setUsers(res.data))
-      .catch(err => console.error(err));
-  }, []);
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <MainLayout />,
+    children: [
+      { path: '*', element: <HomePage /> },
+      { path: '/login', element: <LoginPage />},
+      { path: '/register', element: <LoginPage /> },
+    ],
+  },
+]);
 
-  return (
-    <div>
-      <h1>User List</h1>
-      {users.map(user => (
-        <p key={user.Id}>{user.email}</p>
-      ))}
-    </div>
-  );
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App;
