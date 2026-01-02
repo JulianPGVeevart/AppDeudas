@@ -1,0 +1,75 @@
+const debtModel = require('#models/Debt');
+const debtStatesModel = require('#models/DebtStates');
+
+//GET
+const getAllDebtsByUserId = async (userId) => {
+    try {
+        const debts = await debtModel.getAllDebtsByUserId(userId);
+        return debts;
+    } catch (error) {
+        console.error('Error getting debts:', error);
+        throw error;
+    }
+};
+exports.getAllDebtsByUserId = getAllDebtsByUserId;
+
+const getDebtStates = async () => {
+    try {
+        const debtStates = await debtStatesModel.getAllDebtStates();
+        return debtStates;
+    } catch (error) {
+        console.error('Error getting debt states:', error);
+        throw error;
+    }
+};
+exports.getDebtStates = getDebtStates;
+
+const getDebtById = async (debtId, userId) => {
+    try {
+        const debt = await debtModel.getDebtById(debtId, userId);
+        return debt;
+    } catch (error) {
+        console.error('Error getting debt by ID:', error);
+        throw error;
+    }
+};
+exports.getDebtById = getDebtById;
+
+
+//POST
+const createDebt = async (debtData) => {
+    try {
+        const newDebt = await debtModel.createDebt(debtData);
+        return newDebt;
+    } catch (error) {
+        if(error.detail?.includes('Key (user_id)') && error.detail?.includes('is not present in table')) {
+            error.detail = 'User does not exist';
+        }
+        console.error('Error creating debt:', error);
+        throw error;
+    }
+};
+exports.createDebt = createDebt;
+
+const deleteDebt = async (debtId, userId) => {
+    try {
+        const result = await debtModel.deleteDebt(debtId, userId);
+        return result;
+    } catch (error) {
+        console.error('Error deleting debt:', error);
+        throw error;
+    }
+};
+exports.deleteDebt = deleteDebt;
+
+//PUT
+const updateDebt = async (debtData) => {
+    try {
+        const updatedDebt = await debtModel.updateDebt(debtData);
+        return updatedDebt;
+    } catch (error) {
+        console.error('Error updating debt:', error);
+        throw error;
+    }
+};
+exports.updateDebt = updateDebt;

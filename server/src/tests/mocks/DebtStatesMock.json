@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "state_name": "Pending"
+    },
+    {
+        "id": 2,
+        "state_name": "Partially Paid"
+    },
+    {
+        "id": 3,
+        "state_name": "Paid"
+    }
+]
