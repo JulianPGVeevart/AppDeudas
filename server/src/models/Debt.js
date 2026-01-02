@@ -34,6 +34,15 @@ class Debt {
         return rows[0];
     }
 
+    static async deleteDebt(debtId, userId) {
+        const query = `
+            DELETE FROM ${tables.DEBT} WHERE ID = $1 AND USER_ID = $2;
+        `;
+        const values = [debtId, userId];
+        const { rowCount } = await pool.query(query, values);
+        return rowCount;
+    }
+
     //PUT
     static async updateDebt(debtData) {
         //Paid debts must not be modified

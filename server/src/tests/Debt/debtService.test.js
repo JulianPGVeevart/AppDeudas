@@ -186,4 +186,32 @@ describe('Debt Service', () => {
             consoleSpy.mockRestore();
         });
     });
+
+    describe('deleteDebt', () => {
+        it('should delete a debt successfully', async () => {
+            const debtId = 1;
+            const userId = 1;
+            const mockResult = 1;
+            debtModel.deleteDebt.mockResolvedValue(mockResult);
+
+            const result = await debtService.deleteDebt(debtId, userId);
+
+            expect(debtModel.deleteDebt).toHaveBeenCalledWith(debtId, userId);
+            expect(result).toEqual(mockResult);
+        });
+
+        it('should throw and log an error if deleting debt fails', async () => {
+            const debtId = 1;
+            const userId = 1;
+            const error = new Error('Database error');
+            debtModel.deleteDebt.mockRejectedValue(error);
+
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            await expect(debtService.deleteDebt(debtId, userId)).rejects.toThrow('Database error');
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error deleting debt:', error);
+            consoleSpy.mockRestore();
+        });
+    });
 });

@@ -9,9 +9,10 @@ router.get('/create', debtController.getDebtStates);
 
 //POST
 router.post('/create', debtController.createDebt);
-//router.post('/delete', debtController.deleteDebt);
 
 //PUT
 router.put('/edit/:debtId', debtController.updateDebt);
 
+//DELETE
+router.delete('/delete', debtController.deleteDebt);
 module.exports = router;

@@ -45,13 +45,53 @@ exports.getDebtById = async (req, res, next) => {
     }
 };
 
-
 //POST
 exports.createDebt = async (req, res, next) => {
     try {
         const debtData = getValidDebtData(req.body);
         const newDebt = await debtService.createDebt(debtData);
         res.status(201).json(newDebt);
+    } catch (error) {
+        res.status(400).json({ message: error.detail });
+        next(error);
+    }
+};
+
+//PUT
+exports.updateDebt = async (req, res, next) => {
+    try {
+        const debtData = getValidDebtData(req.body);
+        if(!debtData.id) {
+            return res.status(400).json({ message: 'Debt ID is required to update it' });
+        }
+        const updatedDebt = await debtService.updateDebt(debtData);
+        if(!updatedDebt) {
+            return res.status(400).json({ message: 'Debt not found or already Paid' });
+        }
+        res.status(200).json(updatedDebt);
+    } catch (error) {
+        res.status(400).json({ message: error.detail });
+        next(error);
+    }
+};
+
+//DELETE
+exports.deleteDebt = async (req, res, next) => {
+    try {
+        const [debtId, userId] = [req.body?.id, req.body?.userId];
+        if(!debtId) {
+            return res.status(400).json({ message: 'Debt Id is required' });
+        }
+        if(!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        const result = await debtService.deleteDebt(debtId, userId);
+        if(result > 0) {
+            return res.status(200).json({ message: `${result} rows deleted` });
+        } else {
+            return res.status(404).json({ message: 'Debt not found or not from this user' });
+        }
     } catch (error) {
         res.status(400).json({ message: error.detail });
         next(error);
@@ -93,21 +133,3 @@ function validateData(debtData) {
         throw error;
     }
 }
-
-//PUT
-exports.updateDebt = async (req, res, next) => {
-    try {
-        const debtData = getValidDebtData(req.body);
-        if(!debtData.id) {
-            return res.status(400).json({ message: 'Debt ID is required to update it' });
-        }
-        const updatedDebt = await debtService.updateDebt(debtData);
-        if(!updatedDebt) {
-            return res.status(400).json({ message: 'Debt not found or already Paid' });
-        }
-        res.status(200).json(updatedDebt);
-    } catch (error) {
-        res.status(400).json({ message: error.detail });
-        next(error);
-    }
-};

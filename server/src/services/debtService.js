@@ -51,6 +51,17 @@ const createDebt = async (debtData) => {
 };
 exports.createDebt = createDebt;
 
+const deleteDebt = async (debtId, userId) => {
+    try {
+        const result = await debtModel.deleteDebt(debtId, userId);
+        return result;
+    } catch (error) {
+        console.error('Error deleting debt:', error);
+        throw error;
+    }
+};
+exports.deleteDebt = deleteDebt;
+
 //PUT
 const updateDebt = async (debtData) => {
     try {

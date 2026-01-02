@@ -11,6 +11,7 @@ jest.mock('#services/debtService', () => ({
     getDebtById: jest.fn(),
     createDebt: jest.fn(),
     updateDebt: jest.fn(),
+    deleteDebt: jest.fn(),
 }));
 
 const debtService = require('#services/debtService');
@@ -248,6 +249,57 @@ describe('Debt Controller', () => {
             debtService.updateDebt.mockRejectedValue(error);
 
             await debtController.updateDebt(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
+            expect(next).toHaveBeenCalledWith(error);
+        });
+    });
+
+    describe('deleteDebt', () => {
+        it('should return 400 if debtId is missing', async () => {
+            req.body = { userId: 1 };
+            await debtController.deleteDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Debt Id is required' });
+        });
+
+        it('should return 400 if userId is missing', async () => {
+            req.body = { id: 1 };
+            await debtController.deleteDebt(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'User ID is required' });
+        });
+
+        it('should delete a debt successfully', async () => {
+            req.body = { id: 1, userId: 1 };
+            debtService.deleteDebt.mockResolvedValue(1);
+
+            await debtController.deleteDebt(req, res, next);
+
+            expect(debtService.deleteDebt).toHaveBeenCalledWith(1, 1);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({ message: '1 rows deleted' });
+        });
+
+        it('should return 404 if debt not found or not from this user', async () => {
+            req.body = { id: 1, userId: 1 };
+            debtService.deleteDebt.mockResolvedValue(0);
+
+            await debtController.deleteDebt(req, res, next);
+
+            expect(debtService.deleteDebt).toHaveBeenCalledWith(1, 1);
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Debt not found or not from this user' });
+        });
+
+        it('should handle service errors', async () => {
+            req.body = { id: 1, userId: 1 };
+            const error = new Error('Database error');
+            error.detail = 'Database error';
+            debtService.deleteDebt.mockRejectedValue(error);
+
+            await debtController.deleteDebt(req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
