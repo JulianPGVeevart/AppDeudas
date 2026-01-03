@@ -17,7 +17,7 @@ class User {
     //find by id and password
     static async findUserWithCredentials(email, password) {
         const query = `
-            SELECT Id FROM ${tables.USER} WHERE EMAIL = $1 AND PASSWORD = $2;
+            SELECT Id, EMAIL FROM ${tables.USER} WHERE EMAIL = $1 AND PASSWORD = $2;
         `;
         const values = [email, password];
         const { rows } = await pool.query(query, values);

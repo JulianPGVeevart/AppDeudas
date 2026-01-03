@@ -1,20 +1,6 @@
 const debtService = require('#services/debtService');
 
 //GET
-exports.getAllDebtsByUserId = async (req, res, next) => {
-    try {
-        const userId = req.body.userId;
-        if(!userId) {
-            return res.status(400).json({ message: 'User ID is required to get user debts' });
-        }
-        const debts = await debtService.getAllDebtsByUserId(userId);
-        res.status(200).json(debts);
-    } catch (error) {
-        res.status(400).json({ message: error.detail });
-        next(error);
-    }
-};
-
 exports.getDebtStates = async (req, res, next) => {
     try {
         const debtStates = await debtService.getDebtStates();
@@ -46,6 +32,43 @@ exports.getDebtById = async (req, res, next) => {
 };
 
 //POST
+exports.getAllDebtsByUserId = async (req, res, next) => {
+    try {
+        if(req.body?.stateId) {
+            console.log('get debts by state');
+            return this.getDebtsByStateAndUser(req, res, next);
+        }
+        console.log('get all debts');
+
+        const userId = req.body.userId;
+        if(!userId) {
+            return res.status(400).json({ message: 'User ID is required to get user debts' });
+        }
+        const debts = await debtService.getAllDebtsByUserId(userId);
+        res.status(200).json(debts);
+    } catch (error) {
+        res.status(400).json({ message: error.detail });
+        next(error);
+    }
+};
+
+exports.getDebtsByStateAndUser = async (req, res, next) => {
+    try {
+        const { userId, stateId } = req.body;
+        if(!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+        if(!stateId) {
+            return res.status(400).json({ message: 'State ID is required' });
+        }
+        const debts = await debtService.getDebtsByStateAndUser(userId, stateId);
+        res.status(200).json(debts);
+    } catch(error) {
+        res.status(400).json({ message: error.detail });
+        next(error);
+    }
+}
+
 exports.createDebt = async (req, res, next) => {
     try {
         const debtData = getValidDebtData(req.body);

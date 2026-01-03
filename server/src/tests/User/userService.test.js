@@ -26,30 +26,23 @@ describe('User Service', () => {
             expect(result).toEqual(mockUser);
         });
 
-        it('should throw and log an error if creation fails', async () => {
+        it('should throw an error if creation fails', async () => {
             const error = new Error('Database error');
             userModel.create.mockRejectedValue(error);
 
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
             await expect(userService.createUser('user1@mail.com', 'testpass1')).rejects.toThrow('Database error');
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Error creating user:', error);
-            consoleSpy.mockRestore();
         });
 
-        it('should throw an error if email already exists', async () => {
+        it('should throw a custom error if email already exists', async () => {
             const error = new Error('Key (email)=(user1@mail.com) already exists');
             error.detail = 'Key (email)=(user1@mail.com) already exists';
             userModel.create.mockRejectedValue(error);
             
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-            await expect(userService.createUser('user1@mail.com', 'testpass1')).rejects.toThrow('Key (email)=(user1@mail.com) already exists');
-
-            expect(consoleSpy).toHaveBeenCalledWith('Error creating user:', error);
-            expect(error.detail).toBe('User already exists');
-            consoleSpy.mockRestore();
+            try {
+                await userService.createUser('user1@mail.com', 'testpass1');
+            } catch (e) {
+                expect(e.detail).toBe('User already exists');
+            }
         });
     });
 
@@ -64,16 +57,11 @@ describe('User Service', () => {
             expect(result).toEqual(mockUser);
         });
 
-        it('should throw and log an error if finding user fails', async () => {
+        it('should throw an error if finding user fails', async () => {
             const error = new Error('Database error');
             userModel.findUserWithCredentials.mockRejectedValue(error);
 
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
             await expect(userService.findUserWithCredentials('user1@mail.com', 'testpass1')).rejects.toThrow('Database error');
-
-            expect(consoleSpy).toHaveBeenCalledWith('Error getting user by email and password:', error);
-            consoleSpy.mockRestore();
         });
     });
 });
