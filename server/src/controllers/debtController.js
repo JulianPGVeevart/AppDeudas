@@ -35,10 +35,8 @@ exports.getDebtById = async (req, res, next) => {
 exports.getAllDebtsByUserId = async (req, res, next) => {
     try {
         if(req.body?.stateId) {
-            console.log('get debts by state');
             return this.getDebtsByStateAndUser(req, res, next);
         }
-        console.log('get all debts');
 
         const userId = req.body.userId;
         if(!userId) {
