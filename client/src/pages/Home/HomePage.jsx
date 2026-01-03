@@ -5,12 +5,14 @@ import { useTheme } from '../../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
 import DebtModal from '../../components/DebtModal';
+import DebtTable from '../../components/DebtTable';
+import DebtDetailModal from '../../components/DebtDetailModal';
 import Swal from 'sweetalert2';
 import './HomePage.css';
 
 const HomePage = () => {
   const { userId, logout } = useContext(AuthContext);
-  const { getStateNameById, debtStates } = useDebtStates();
+  const { debtStates } = useDebtStates();
   const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [debts, setDebts] = useState([]);
@@ -19,6 +21,8 @@ const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [selectedDebt, setSelectedDebt] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedFilterState, setSelectedFilterState] = useState(null);
 
   // Redirect to login if no userId
   useEffect(() => {
@@ -65,7 +69,8 @@ const HomePage = () => {
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (debt) => {
+  const handleOpenEditModal = (e, debt) => {
+    e.stopPropagation();
     setModalMode('edit');
     setSelectedDebt(debt);
     setIsModalOpen(true);
@@ -73,6 +78,16 @@ const HomePage = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setSelectedDebt(null);
+  };
+
+  const handleOpenDetailModal = (debt) => {
+    setSelectedDebt(debt);
+    setIsDetailOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailOpen(false);
     setSelectedDebt(null);
   };
 
@@ -110,16 +125,7 @@ const HomePage = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
+  const filteredDebts = selectedFilterState ? debts.filter(debt => debt.state_id === selectedFilterState) : debts;
 
   return (
     <div className="home-container">
@@ -145,52 +151,32 @@ const HomePage = () => {
         <div className="debts-section">
           <h3>Your Debts</h3>
 
-          {loading && <p className="loading">Loading debts...</p>}
+          {/* Filter Section */}
+          <div className="filter-section">
+            <label htmlFor="state-filter">Filter by Status:</label>
+            <select
+              id="state-filter"
+              value={selectedFilterState || ''}
+              onChange={(e) => setSelectedFilterState(e.target.value ? parseInt(e.target.value) : null)}
+              className="filter-select"
+            >
+              <option value="">All</option>
+              {debtStates.map((state) => (
+                <option key={state.id} value={state.id}>
+                  {state.state_name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          {error && <p className="error">{error}</p>}
-
-          {!loading && !error && debts.length === 0 && (
-            <p className="no-debts">No debts found. You're all caught up!</p>
-          )}
-
-          {!loading && !error && debts.length > 0 && (
-            <div className="table-container">
-              <table className="debts-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {debts.map((debt) => (
-                    <tr key={debt.id} onClick={() => handleOpenEditModal(debt)}>
-                      <td className="debt-id" data-label="ID">#{debt.id}</td>
-                      <td className="debt-amount" data-label="Amount">{formatCurrency(debt.amount)}</td>
-                      <td data-label="Date">{formatDate(debt.creation_date)}</td>
-                      <td data-label="Status">
-                        <span className={`status status-${getStateNameById(debt.state_id)?.toLowerCase().replace(' ', '-') || 'unknown'}`}>
-                          {getStateNameById(debt.state_id) || 'Unknown'}
-                        </span>
-                      </td>
-                      <td data-label="Actions">
-                        <button 
-                          className="delete-btn" 
-                          onClick={(e) => handleDeleteDebt(e, debt.id)}
-                          title="Delete debt"
-                        >
-                          🗑️
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <DebtTable
+            debts={filteredDebts}
+            loading={loading}
+            error={error}
+            onEdit={handleOpenEditModal}
+            onDelete={handleDeleteDebt}
+            onViewDetails={handleOpenDetailModal}
+          />
         </div>
       </div>
 
@@ -201,7 +187,13 @@ const HomePage = () => {
         mode={modalMode}
         debtData={selectedDebt}
         onSuccess={handleDebtSuccess}
-        debtStates={debtStates}
+      />
+
+      {/* Detail View Modal */}
+      <DebtDetailModal
+        isOpen={isDetailOpen}
+        onClose={handleCloseDetailModal}
+        debt={selectedDebt}
       />
 
       {/* Floating Add Debt Button */}

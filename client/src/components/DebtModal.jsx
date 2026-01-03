@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useDebtStates } from '../context/DebtStatesContext';
 import apiClient from '../services/apiClient';
 import Swal from 'sweetalert2';
 
-const DebtModal = ({ isOpen, onClose, mode, debtData, onSuccess, debtStates }) => {
+const DebtModal = ({ isOpen, onClose, mode, debtData, onSuccess }) => {
+  const { debtStates } = useDebtStates();
   const [formData, setFormData] = useState({
     amount: '',
     stateId: 1
