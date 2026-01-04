@@ -44,8 +44,7 @@ const HomePage = () => {
       const response = await apiClient.post('/debts', requestBody);
       setDebts(response.data);
     } catch (err) {
-      setError('Failed to load debts');
-      console.error('Error fetching debts:', err);
+      setError('Failed to load debts: '+err.message);
       Swal.fire({
         icon: 'error',
         title: 'Connection Error',
