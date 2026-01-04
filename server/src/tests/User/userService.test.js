@@ -10,70 +10,98 @@ jest.mock('#database/db', () => ({
 // Mock the userModel to isolate service logic
 jest.mock('#models/User');
 
+const { scrypt, randomBytes } = require('crypto');
+const { promisify } = require('util');
+
+jest.mock('crypto', () => ({
+    ...jest.requireActual('crypto'),
+    randomBytes: jest.fn().mockReturnValue({ toString: () => 'salt' }),
+    scrypt: jest.fn().mockImplementation((password, salt, a, callback) => {
+        callback(null, Buffer.from(password + salt));
+    }),
+}));
+
 describe('User Service', () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
 
     describe('createUser', () => {
-        it('should create a new user successfully', async () => {
-            const mockUser = usersMock[0];
+        it('should create a new user successfully and not return the password', async () => {
+            const mockUser = { id: 1, email: 'user1@mail.com', password: 'salt.74657374706173733173616c74' };
             userModel.create.mockResolvedValue(mockUser);
 
-            const result = await userService.createUser(mockUser.email, mockUser.password);
+            const result = await userService.createUser(mockUser.email, 'testpass1');
 
-            expect(userModel.create).toHaveBeenCalledWith({ email: 'user1@mail.com', password: 'testpass1' });
-            expect(result).toEqual(mockUser);
+            expect(userModel.create).toHaveBeenCalledWith({ email: 'user1@mail.com', password: 'salt.74657374706173733173616c74' });
+            expect(result).not.toHaveProperty('password');
+            expect(result.email).toEqual(mockUser.email);
         });
 
-        it('should throw and log an error if creation fails', async () => {
+        it('should throw an error if creation fails', async () => {
             const error = new Error('Database error');
             userModel.create.mockRejectedValue(error);
 
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
             await expect(userService.createUser('user1@mail.com', 'testpass1')).rejects.toThrow('Database error');
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Error creating user:', error);
-            consoleSpy.mockRestore();
         });
 
-        it('should throw an error if email already exists', async () => {
+        it('should throw a custom error if email already exists', async () => {
             const error = new Error('Key (email)=(user1@mail.com) already exists');
             error.detail = 'Key (email)=(user1@mail.com) already exists';
             userModel.create.mockRejectedValue(error);
             
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-            await expect(userService.createUser('user1@mail.com', 'testpass1')).rejects.toThrow('Key (email)=(user1@mail.com) already exists');
-
-            expect(consoleSpy).toHaveBeenCalledWith('Error creating user:', error);
-            expect(error.detail).toBe('User already exists');
-            consoleSpy.mockRestore();
+            try {
+                await userService.createUser('user1@mail.com', 'testpass1');
+            } catch (e) {
+                expect(e.detail).toBe('User already exists');
+            }
         });
     });
 
     describe('findUserWithCredentials', () => {
-        it('should return user when credentials are valid', async () => {
-            const mockUser = usersMock[0];
-            userModel.findUserWithCredentials.mockResolvedValue(mockUser);
+        it('should return user when credentials are valid and not return the password', async () => {
+            const mockUser = {
+                id: 1,
+                email: 'user1@mail.com',
+                password: 'salt.74657374706173733173616c74',
+            };
+            userModel.findByEmail.mockResolvedValue(mockUser);
 
-            const result = await userService.findUserWithCredentials(mockUser.email, mockUser.password);
+            const result = await userService.findUserWithCredentials('user1@mail.com', 'testpass1');
 
-            expect(userModel.findUserWithCredentials).toHaveBeenCalledWith('user1@mail.com', 'testpass1');
-            expect(result).toEqual(mockUser);
+            expect(userModel.findByEmail).toHaveBeenCalledWith('user1@mail.com');
+            expect(result).not.toHaveProperty('password');
+            expect(result.email).toEqual(mockUser.email);
         });
 
-        it('should throw and log an error if finding user fails', async () => {
-            const error = new Error('Database error');
-            userModel.findUserWithCredentials.mockRejectedValue(error);
+        it('should return null when credentials are invalid', async () => {
+            const mockUser = {
+                id: 1,
+                email: 'user1@mail.com',
+                password: 'salt.74657374706173733173616c74',
+            };
+            userModel.findByEmail.mockResolvedValue(mockUser);
 
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const result = await userService.findUserWithCredentials('user1@mail.com', 'wrongpassword');
+
+            expect(userModel.findByEmail).toHaveBeenCalledWith('user1@mail.com');
+            expect(result).toBeNull();
+        });
+
+        it('should return null if user is not found', async () => {
+            userModel.findByEmail.mockResolvedValue(null);
+
+            const result = await userService.findUserWithCredentials('user1@mail.com', 'testpass1');
+
+            expect(userModel.findByEmail).toHaveBeenCalledWith('user1@mail.com');
+            expect(result).toBeNull();
+        });
+
+        it('should throw an error if finding user fails', async () => {
+            const error = new Error('Database error');
+            userModel.findByEmail.mockRejectedValue(error);
 
             await expect(userService.findUserWithCredentials('user1@mail.com', 'testpass1')).rejects.toThrow('Database error');
-
-            expect(consoleSpy).toHaveBeenCalledWith('Error getting user by email and password:', error);
-            consoleSpy.mockRestore();
         });
     });
 });

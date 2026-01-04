@@ -12,13 +12,14 @@ jest.mock('#services/debtService', () => ({
     createDebt: jest.fn(),
     updateDebt: jest.fn(),
     deleteDebt: jest.fn(),
+    getDebtsByStateAndUser: jest.fn(),
 }));
 
 const debtService = require('#services/debtService');
 
 describe('Debt Controller', () => {
     let req, res, next;
-
+    
     beforeEach(() => {
         req = {
             body: {},
@@ -30,6 +31,45 @@ describe('Debt Controller', () => {
         };
         next = jest.fn();
         jest.clearAllMocks();
+    });
+
+    describe('getDebtsByStateAndUser', () => {
+        it('should return 400 if userId is missing', async () => {
+            req.body = { stateId: 1 };
+            await debtController.getDebtsByStateAndUser(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'User ID is required' });
+        });
+
+        it('should return 400 if stateId is missing', async () => {
+            req.body = { userId: 1 };
+            await debtController.getDebtsByStateAndUser(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'State ID is required' });
+        });
+
+        it('should return debts when userId and stateId are provided', async () => {
+            req.body = { userId: 1, stateId: 1 };
+            debtService.getDebtsByStateAndUser.mockResolvedValue(debtsMock);
+
+            await debtController.getDebtsByStateAndUser(req, res, next);
+
+            expect(debtService.getDebtsByStateAndUser).toHaveBeenCalledWith(1, 1);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(debtsMock);
+        });
+
+        it('should handle errors', async () => {
+            req.body = { userId: 1, stateId: 1 };
+            const error = { detail: 'Database error' };
+            debtService.getDebtsByStateAndUser.mockRejectedValue(error);
+
+            await debtController.getDebtsByStateAndUser(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
+            expect(next).toHaveBeenCalledWith(error);
+        });
     });
 
     describe('getAllDebtsByUserId', () => {

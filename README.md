@@ -43,20 +43,28 @@ INSERT INTO DEBT_STATES (STATE_NAME) VALUES ('Pending');
 INSERT INTO DEBT_STATES (STATE_NAME) VALUES ('Partially Paid');
 INSERT INTO DEBT_STATES (STATE_NAME) VALUES ('Paid');
 
-INSERT INTO APP_USER (EMAIL, PASSWORD) VALUES ('sample@email.com', 'sample');
-INSERT INTO APP_USER (EMAIL, PASSWORD) VALUES ('julian@gmail.com', 'pass2');
+INSERT INTO APP_USER (EMAIL, PASSWORD) VALUES ('user@test.com', 'afa77cbbefbb867645306abe9082dfa0.1d79d6a54aaf8f64d035b7799e1a2fb8314de4b122412e4d76533e6d7a7d71767cf5f93e3f2122525f3387ca85a07f06b503d652c45bcc39cadf6ec66389c166');
+INSERT INTO APP_USER (EMAIL, PASSWORD) VALUES ('user2@test.com', '8b7d718cd02f3602b3c548975b7cd006.d743c7b27d5f9eaa9200cac243d5a0fd292b81569033f5b107989277553010be18b0a4f7edcfeb1c250fc8bd34aa0730116926bc370d6f92aae20107cb560465');
 
 -- Example Dependent Data --
 INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (1000, CURRENT_DATE, 1, 1);
-INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (2000, CURRENT_DATE, 1, 2);
-INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (3000, CURRENT_DATE, 2, 3);
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (2000, CURRENT_DATE, 1, 1);
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (2500, CURRENT_DATE, 1, 2);
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (100, CURRENT_DATE, 1, 2);
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (20000, CURRENT_DATE, 1, 2);
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (25000, CURRENT_DATE, 1, 3);
+
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (3000, CURRENT_DATE, 2, 1);
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (3500, CURRENT_DATE, 2, 3);
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (8000, CURRENT_DATE, 2, 3);
+INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (700, CURRENT_DATE, 2, 3);
 ```
 </details>
 
 ### Backend
 <details>
 <Summary>Backend</Summary>
-1.Crear un archivo .env en la carpeta server y cambiar las variables con el de su postgresql local:
+1.Crear un archivo .env en la carpeta server y cambie las variables con el de su postgresql local:
 ```
 DB_USER=postgres
 DB_PASSWORD=postgres_password
@@ -66,3 +74,20 @@ DB_PORT=5432
 PORT=5000
 ```
 </details>
+
+## Ejecucion
+1. Configura la base de datos
+2. Clona el repo
+3. instala las dependencias con ```npm run install-all```
+4. Ejecuta el servidor y el cliente en local con ```npm run dev``` en la carpeta raiz /AppDeudas
+5. Abre el navegador en <link>http://localhost:5173</link> y verifica que funcione correctamente.
+
+## Notas
+Si creaste la informacion de prueba en la base de datos, intenta loggearte con las siguientes credenciales:
+Usuario: "user@test.com"
+Contraseña: "test"
+
+Usuario: user2@test.com
+Contraseña: testpass
+
+y ya tendras informacion para probar el frontend.

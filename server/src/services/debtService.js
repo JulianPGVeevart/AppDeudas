@@ -7,18 +7,26 @@ const getAllDebtsByUserId = async (userId) => {
         const debts = await debtModel.getAllDebtsByUserId(userId);
         return debts;
     } catch (error) {
-        console.error('Error getting debts:', error);
         throw error;
     }
 };
 exports.getAllDebtsByUserId = getAllDebtsByUserId;
+
+const getDebtsByStateAndUser = async (userId, stateId) => {
+    try {
+        const debts = await debtModel.getDebtsByStateAndUser(userId, stateId);
+        return debts;
+    } catch (error) {
+        throw error;
+    }
+};
+exports.getDebtsByStateAndUser = getDebtsByStateAndUser;
 
 const getDebtStates = async () => {
     try {
         const debtStates = await debtStatesModel.getAllDebtStates();
         return debtStates;
     } catch (error) {
-        console.error('Error getting debt states:', error);
         throw error;
     }
 };
@@ -29,7 +37,6 @@ const getDebtById = async (debtId, userId) => {
         const debt = await debtModel.getDebtById(debtId, userId);
         return debt;
     } catch (error) {
-        console.error('Error getting debt by ID:', error);
         throw error;
     }
 };
@@ -45,7 +52,6 @@ const createDebt = async (debtData) => {
         if(error.detail?.includes('Key (user_id)') && error.detail?.includes('is not present in table')) {
             error.detail = 'User does not exist';
         }
-        console.error('Error creating debt:', error);
         throw error;
     }
 };
@@ -56,7 +62,6 @@ const deleteDebt = async (debtId, userId) => {
         const result = await debtModel.deleteDebt(debtId, userId);
         return result;
     } catch (error) {
-        console.error('Error deleting debt:', error);
         throw error;
     }
 };
@@ -68,7 +73,6 @@ const updateDebt = async (debtData) => {
         const updatedDebt = await debtModel.updateDebt(debtData);
         return updatedDebt;
     } catch (error) {
-        console.error('Error updating debt:', error);
         throw error;
     }
 };
