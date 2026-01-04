@@ -150,6 +150,7 @@ describe('Debt Service with Caching', () => {
             expect(debtModel.createDebt).toHaveBeenCalledWith(newDebt);
             expect(cacheClient.del).toHaveBeenCalledWith('debts:1');
             expect(cacheClient.del).toHaveBeenCalledWith('debts:1:1');
+            expect (cacheClient.del).toHaveBeenCalledWith('amountSums:1');
             expect(createdDebt).toEqual(newDebt);
         });
 
@@ -177,6 +178,7 @@ describe('Debt Service with Caching', () => {
             expect(cacheClient.del).toHaveBeenCalledWith('debts:1');
             expect(cacheClient.del).toHaveBeenCalledWith('debts:1:1');
             expect(cacheClient.del).toHaveBeenCalledWith('debt:1:1');
+            expect(cacheClient.del).toHaveBeenCalledWith('amountSums:1');
             expect(result).toEqual(updatedDebt);
         });
 
@@ -201,6 +203,7 @@ describe('Debt Service with Caching', () => {
 
             expect(debtModel.deleteDebt).toHaveBeenCalledWith(1, 1);
             expect(cacheClient.del).toHaveBeenCalledWith('debts:1');
+            expect (cacheClient.del).toHaveBeenCalledWith('amountSums:1');
             expect(result).toBe(1);
         });
 
