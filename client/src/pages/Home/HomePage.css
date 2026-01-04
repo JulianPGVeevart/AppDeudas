@@ -47,90 +47,6 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-/* User Panel - Sidebar */
-.user-panel {
-  width: 280px;
-  background-color: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  box-sizing: border-box;
-}
-
-.user-info {
-  margin-bottom: auto;
-}
-
-.user-info h2 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-primary);
-  font-size: 1.25em;
-}
-
-.user-info p {
-  margin: 0 0 1.5rem 0;
-  color: var(--text-secondary);
-  font-size: 0.9em;
-}
-
-.user-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.user-panel-btn {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9em;
-  transition: background-color 0.2s;
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.user-panel-btn:hover {
-  background-color: var(--border-color);
-}
-
-.theme-toggle-btn {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  padding: 0.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.theme-toggle-btn:hover {
-  background-color: var(--accent-color);
-  color: white;
-}
-
-.logout-btn {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em;
-  transition: background-color 0.2s;
-  width: 100%;
-}
-
-.logout-btn:hover {
-  background-color: #c82333;
-}
-
 /* Main Content */
 .main-content {
   flex: 1;
@@ -532,16 +448,6 @@ select.form-input {
     min-height: 0;
   }
 
-  .user-panel {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-  }
-
   .user-info {
     margin-bottom: 0;
   }
@@ -571,10 +477,14 @@ select.form-input {
   }
 
   .main-content {
-    padding: 1rem;
     max-width: 100%;
     display: flex;
     flex-direction: column;
+  }
+  
+  .debts-section h3 {
+    font-size: 1.1em;
+    margin: 0.5rem;
   }
 
   /* Responsive Table Transformation */
@@ -601,7 +511,7 @@ select.form-input {
     justify-content: space-between;
     align-items: center;
     text-align: right;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
     border-bottom: 1px solid var(--border-color);
   }
 
@@ -681,7 +591,7 @@ select.form-input {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
   padding: 10px;
   background-color: var(--bg-secondary);
   border-radius: 8px;
