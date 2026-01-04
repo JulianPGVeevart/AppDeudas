@@ -1,14 +1,15 @@
 const debtService = require('#services/debtService');
 const debtModel = require('#models/Debt');
-const debtStatesModel = require('#models/DebtStates');
 const debtsMock = require('../mocks/DebtsMock.json');
 const debtStatesMock = require('../mocks/DebtStatesMock.json');
+const debtStatesSummarizedMock = require('../mocks/DebtStatesSummarizedMock.json');
 const cacheClient = require('#utils/redisClient');
 
 jest.mock('#models/Debt', () => ({
     getAllDebtsByUserId: jest.fn(),
     getDebtsByStateAndUser: jest.fn(),
     getDebtById: jest.fn(),
+    getAmountSumsByState: jest.fn(),
     createDebt: jest.fn(),
     updateDebt: jest.fn(),
     deleteDebt: jest.fn(),
@@ -44,14 +45,15 @@ describe('Debt Service with Caching', () => {
             expect(debts).toEqual(debtsMock);
         });
 
-        it('should fetch from DB and cache if not in cache', async () => {
+        it('should fetch from DB and save in cache', async () => {
             cacheClient.get.mockResolvedValue(null);
             debtModel.getAllDebtsByUserId.mockResolvedValue(debtsMock);
 
             const debts = await debtService.getAllDebtsByUserId(1);
 
             expect(cacheClient.get).toHaveBeenCalledWith('debts:1');
-            expect(debtModel.getAllDebtsByUserId).toHaveBeenCalledWith
+            expect(debtModel.getAllDebtsByUserId).toHaveBeenCalledWith(1);
+            expect(cacheClient.set).toHaveBeenCalled();
             expect(debts).toEqual(debtsMock);
         });
 
@@ -78,7 +80,7 @@ describe('Debt Service with Caching', () => {
             expect(debts).toEqual(debtsMock);
         });
 
-        it("should fetch from DB and cache if not in cache", async () => {
+        it("should fetch from DB and save in cache", async () => {
             cacheClient.get.mockResolvedValue(null);
             debtModel.getDebtsByStateAndUser.mockResolvedValue(debtsMock);
 
@@ -86,6 +88,7 @@ describe('Debt Service with Caching', () => {
 
             expect(cacheClient.get).toHaveBeenCalledWith('debts:1:1');
             expect(debtModel.getDebtsByStateAndUser).toHaveBeenCalledWith(1, 1);
+            expect(cacheClient.set).toHaveBeenCalled();
             expect(debts).toEqual(debtsMock);
         });
 
@@ -100,6 +103,42 @@ describe('Debt Service with Caching', () => {
             expect(debts).toEqual(debtsMock);
         });
     });
+
+    describe('getAmountSumsByState', () => {
+        it('should return cached amount sums by state if available', async () => {
+            cacheClient.get.mockResolvedValue(JSON.stringify(debtStatesSummarizedMock));
+
+            const amountSumsByState = await debtService.getAmountSumsByState(1);
+
+            expect(cacheClient.get).toHaveBeenCalledWith('amountSums:1');
+            expect(debtModel.getAmountSumsByState).not.toHaveBeenCalled();
+            expect(amountSumsByState).toEqual(debtStatesSummarizedMock);
+        });
+
+        it('should return db amount sums and save in cache', async () => {
+            cacheClient.get.mockResolvedValue(null);
+            debtModel.getAmountSumsByState.mockResolvedValue(debtStatesSummarizedMock);
+
+            const sumarizedDebts = await debtService.getAmountSumsByState(1);
+
+            expect(cacheClient.get).toHaveBeenCalledWith('amountSums:1');
+            expect(debtModel.getAmountSumsByState).toHaveBeenCalled();
+            expect(cacheClient.set).toHaveBeenCalled();
+            expect(sumarizedDebts).toEqual(debtStatesSummarizedMock);
+        });
+
+        it('should return db amount when cache is not available', async () => {
+            disableCache();
+            debtModel.getAmountSumsByState.mockResolvedValue(debtStatesSummarizedMock);
+
+            const amountSumsByState = await debtService.getAmountSumsByState();
+
+            expect(cacheClient.get).not.toHaveBeenCalled();
+            expect(debtModel.getAmountSumsByState).toHaveBeenCalled();
+            expect(amountSumsByState).toEqual(debtStatesSummarizedMock);
+        });
+    });
+
 
     describe('createDebt', () => {
         it('should cache debts after creation', async () => {

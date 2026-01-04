@@ -80,6 +80,27 @@ const getDebtById = async (debtId, userId) => {
 };
 exports.getDebtById = getDebtById;
 
+const getAmountSumsByState = async (userId) => {
+    try {
+        if(useCache()){
+            const cachedAmountSums = await cacheClient.get(`amountSums:${userId}`);
+            if (cachedAmountSums) {
+                return JSON.parse(cachedAmountSums);
+            }
+        }
+
+        const amountSums = await debtModel.getAmountSumsByState(userId);
+
+        if(useCache()) {
+            await cacheClient.set(`amountSums:${userId}`, JSON.stringify(amountSums), 'EX', 3600); // Cache for 1 hour
+        }
+
+        return amountSums;
+    } catch (error) {
+        throw error;
+    }
+};
+exports.getAmountSumsByState = getAmountSumsByState;
 
 //POST
 const createDebt = async (debtData) => {
