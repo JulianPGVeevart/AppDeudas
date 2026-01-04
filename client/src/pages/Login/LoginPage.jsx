@@ -113,7 +113,13 @@ const LoginPage = () => {
               <p>Don't have an account?</p>
               <a href="/register">Register</a>
             </div>
-           )}
+          )}
+          {!isLogin && (
+              <div className="register-link">
+                <p>Already have an account?</p>
+                <a href="/login">Login</a>
+              </div>
+          )}
         </form>
       </div>
     </div>

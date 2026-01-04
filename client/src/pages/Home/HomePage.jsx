@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useDebtStates } from '../../context/DebtStatesContext';
-import { useTheme } from '../../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
 import DebtModal from '../../components/DebtModal';
@@ -10,11 +9,11 @@ import DebtsAggregations from '../../components/DebtsAggregations';
 import DebtDetailModal from '../../components/DebtDetailModal';
 import Swal from 'sweetalert2';
 import './HomePage.css';
+import TopNavbar from '../../components/TopNavBar';
 
 const HomePage = () => {
   const { userId, logout, userEmail } = useContext(AuthContext);
   const { debtStates } = useDebtStates();
-  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [debts, setDebts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -207,27 +206,11 @@ const HomePage = () => {
 
   return (
     <div className="home-container">
-      {/* User Panel - Sidebar */}
-      <div className="user-panel">
-        <div className="user-info">
-          <h2>Welcome, User {userEmail}</h2>
-          <p>Your debt management dashboard</p>
-          <button onClick={handleShowAggregations} className="user-panel-btn">
-            { showAggregations ? 'Show Debts Table' : 'Show Debt Amounts by State' }
-          </button>
-          <button onClick={handleExportDebts} className="user-panel-btn">
-            Export debts in JSON
-          </button>
-        </div>
-        <div className="user-actions">
-          <button onClick={toggleTheme} className="theme-toggle-btn" title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
-            {isDarkMode ? 'Light Mode ☀️' : 'Dark Mode 🌙'}
-          </button>
-          <button onClick={handleLogout} className="logout-btn">
-            Logout
-          </button>
-        </div>
-      </div>
+      <TopNavbar 
+        handleShowAggregations={handleShowAggregations}
+        handleExportDebts={handleExportDebts}
+        showAggregations={showAggregations}
+      />
 
       {/* Main Content */}
       <div className="main-content">
