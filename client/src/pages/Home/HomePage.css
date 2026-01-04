@@ -80,6 +80,22 @@
   gap: 0.5rem;
 }
 
+.user-panel-btn {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+  transition: background-color 0.2s;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.user-panel-btn:hover {
+  background-color: var(--border-color);
+}
+
 .theme-toggle-btn {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
