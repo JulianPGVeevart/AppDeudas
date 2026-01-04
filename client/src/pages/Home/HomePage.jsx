@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
 import DebtModal from '../../components/DebtModal';
 import DebtTable from '../../components/DebtTable';
+import DebtsAggregations from '../../components/DebtsAggregations';
 import DebtDetailModal from '../../components/DebtDetailModal';
 import Swal from 'sweetalert2';
 import './HomePage.css';
@@ -23,6 +24,8 @@ const HomePage = () => {
   const [selectedDebt, setSelectedDebt] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedFilterState, setSelectedFilterState] = useState(null);
+  const [showAggregations, setShowAggregations] = useState(false);
+  const [aggregations, setAggregations] = useState([]);
 
   // Redirect to login if no userId
   useEffect(() => {
@@ -106,6 +109,29 @@ const HomePage = () => {
       });
   };
 
+  const fetchAggregations = async () => {
+    if (!userId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.post(`/debts/state_amounts`,{userId: parseInt(userId)});
+      setAggregations(response.data);
+    } catch (err) {
+      setError('Failed to load aggregations: '+err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Connection Error',
+        text: 'Failed to get aggregations',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleShowAggregations = () => {
+    setShowAggregations(prev => !prev);
+    fetchAggregations();
+  };
 
 
   useEffect(() => {
@@ -186,11 +212,14 @@ const HomePage = () => {
         <div className="user-info">
           <h2>Welcome, User {userEmail}</h2>
           <p>Your debt management dashboard</p>
-        </div>
-        <div className="user-actions">
-          <button onClick={handleExportDebts} className="profile-btn">
+          <button onClick={handleShowAggregations} className="user-panel-btn">
+            { showAggregations ? 'Show Debts Table' : 'Show Debt Amounts by State' }
+          </button>
+          <button onClick={handleExportDebts} className="user-panel-btn">
             Export debts in JSON
           </button>
+        </div>
+        <div className="user-actions">
           <button onClick={toggleTheme} className="theme-toggle-btn" title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
             {isDarkMode ? 'Light Mode ☀️' : 'Dark Mode 🌙'}
           </button>
@@ -204,34 +233,52 @@ const HomePage = () => {
       <div className="main-content">
         {/* Debts Section */}
         <div className="debts-section">
-          <h3>Your Debts</h3>
+          {
+            showAggregations &&
+            <h3>Debt Amounts by State</h3>
+          }
+          {
+            !showAggregations &&
+            <h3>Your Debts</h3>
+          }
 
-          {/* Filter Section */}
-          <div className="filter-section">
-            <label htmlFor="state-filter">Filter by Status:</label>
-            <select
-              id="state-filter"
-              value={selectedFilterState || ''}
-              onChange={(e) => setSelectedFilterState(e.target.value ? parseInt(e.target.value) : null)}
-              className="filter-select"
-            >
-              <option value="">All</option>
-              {debtStates.map((state) => (
-                <option key={state.id} value={state.id}>
-                  {state.state_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <DebtTable
-            debts={debts}
-            loading={loading}
-            error={error}
-            onEdit={handleOpenEditModal}
-            onDelete={handleDeleteDebt}
-            onViewDetails={handleOpenDetailModal}
-          />
+          { showAggregations && 
+            <DebtsAggregations 
+              aggregations={aggregations}
+              loading={loading}
+              error={error}
+              debtStates={debtStates}
+            />
+          }
+          { !showAggregations &&
+            /* Filter Section */
+            <>
+            <div className="filter-section">
+              <label htmlFor="state-filter">Filter by Status:</label>
+              <select
+                id="state-filter"
+                value={selectedFilterState || ''}
+                onChange={(e) => setSelectedFilterState(e.target.value ? parseInt(e.target.value) : null)}
+                className="filter-select"
+              >
+                <option value="">All</option>
+                {debtStates.map((state) => (
+                  <option key={state.id} value={state.id}>
+                    {state.state_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <DebtTable
+              debts={debts}
+              loading={loading}
+              error={error}
+              onEdit={handleOpenEditModal}
+              onDelete={handleDeleteDebt}
+              onViewDetails={handleOpenDetailModal}
+            />
+            </>
+          }
         </div>
       </div>
 
