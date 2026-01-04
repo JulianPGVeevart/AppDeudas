@@ -106,3 +106,12 @@ y ya tendras informacion para probar el frontend.
 7. Editar/Eliminar desde vista de tabla o vista detalle para mayor flexibilidad.
 
 ### Backend
+1. Uso de Express como tecnologia base para la conexion con la base de datos
+2. 3 modelos, 2 servicios ya que uno de los modelos se usa una unica vez por dependencia del otro (debt depende de debt_states) y que dicha tabla no se actualiza por ahora.
+3. Uso de Redis como capa de cache ya que no se cuenta con AWS, Solo la informacion sobre las deudas es almacenada en cache, los datos de usuario y estados de deudas se manejan por contexto en el Frontend.
+4. Manejo de encriptado con Salt para el password, no lo vi necesario para el email por temas de pruebas durante el desarrollo, pero podria ser igualmente encriptado.
+5. Endpoint de las agregaciones segun el estado de deuda (Pending, Partially Paid, Paid) (Seccion En la App)
+6. Endpoint para exportar deudas del usuario en JSON (Boton en el panel de Usuario)
+7. Test unitarios de los servicios y los controladores.
+8. Endpoint especifico para obtener deudas segun el estado de deuda (Pending, Partially Paid, Paid)
+9. Se realiza validacion de que el usuario que pide por la informacion de las deudas sea el propietario de las mismas. (Usuario en sesion Vs Usuario de la deuda en la base de datos).
