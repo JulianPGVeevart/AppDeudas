@@ -15,7 +15,8 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "redis": "^4.6.15"
   },
   "devDependencies": {
     "jest": "^30.2.0",
@@ -23,10 +24,12 @@
     "supertest": "^7.1.4"
   },
   "imports": {
-    "#models/*" : "./src/models/*.js",
-    "#services/*" : "./src/services/*.js",
-    "#routes/*" : "./src/routes/*.js",
-    "#controllers/*" : "./src/controllers/*.js",
-    "#database/*" : "./database/*.js"
+    "#models/*": "./src/models/*.js",
+    "#services/*": "./src/services/*.js",
+    "#routes/*": "./src/routes/*.js",
+    "#controllers/*": "./src/controllers/*.js",
+    "#database/*": "./database/*.js",
+    "#redis/*": "./src/redis/*.js",
+    "#utils/*": "./src/utils/*.js"
   }
 }

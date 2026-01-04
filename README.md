@@ -66,12 +66,16 @@ INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (700, CURRENT
 <Summary>Backend</Summary>
 1.Crear un archivo .env en la carpeta server y cambie las variables con el de su postgresql local:
 ```
+# Postgres
 DB_USER=postgres
 DB_PASSWORD=postgres_password
 DB_HOST=localhost
 DB_NAME=postgres_db_name
 DB_PORT=5432
 PORT=5000
+
+# Redis
+REDIS_URL=redis://localhost:6379
 ```
 </details>
 
