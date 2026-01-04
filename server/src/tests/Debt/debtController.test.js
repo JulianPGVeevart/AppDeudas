@@ -1,6 +1,8 @@
 const debtController = require('#controllers/debtController');
 const debtStatesMock = require('../mocks/DebtStatesMock.json');
 const debtsMock = require('../mocks/DebtsMock.json');
+const debtStatesSummarizedMock = require('../mocks/DebtStatesSummarizedMock.json');
+
 
 // Mock the debtService to isolate controller logic
 // Note: Ensure your Jest configuration maps '#services/debtService' correctly,
@@ -9,6 +11,7 @@ jest.mock('#services/debtService', () => ({
     getAllDebtsByUserId: jest.fn(),
     getDebtStates: jest.fn(),
     getDebtById: jest.fn(),
+    getAmountSumsByState: jest.fn(),
     createDebt: jest.fn(),
     updateDebt: jest.fn(),
     deleteDebt: jest.fn(),
@@ -185,6 +188,31 @@ describe('Debt Controller', () => {
             expect(debtService.getDebtById).toHaveBeenCalledWith('1', 1);
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({ message: 'Debt not found for this user' });
+        });
+    });
+
+    describe('getAmountSumsByState', () => {
+        it('should return amount sums by state', async () => {
+            req.body = { userId: 1 };
+            debtService.getAmountSumsByState.mockResolvedValue(debtStatesSummarizedMock);
+
+            await debtController.getAmountSumsByState(req, res, next);
+
+            expect(debtService.getAmountSumsByState).toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(debtStatesSummarizedMock);
+        });
+
+        it('should handle database errors', async () => {
+            req.body = { userId: 1 };
+            const error = { detail: 'Database error' };
+            debtService.getAmountSumsByState.mockRejectedValue(error);
+
+            await debtController.getAmountSumsByState(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({message: 'Database error'});
+            expect(next).toHaveBeenCalledWith(error);
         });
     });
 

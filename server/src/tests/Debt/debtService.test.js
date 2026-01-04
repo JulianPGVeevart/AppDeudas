@@ -3,11 +3,14 @@ const debtModel = require('#models/Debt');
 const debtStatesModel = require('#models/DebtStates');
 const debtsMock = require('../mocks/DebtsMock.json');
 const debtStatesMock = require('../mocks/DebtStatesMock.json');
+const debtStatesSummarized = require('../mocks/DebtStatesSummarizedMock.json');
+
 
 jest.mock('#models/Debt', () => ({
     getAllDebtsByUserId: jest.fn(),
     getDebtsByStateAndUser: jest.fn(),
     getDebtById: jest.fn(),
+    getAmountSumsByState: jest.fn(),
     createDebt: jest.fn(),
     updateDebt: jest.fn(),
     deleteDebt: jest.fn(),
@@ -111,6 +114,26 @@ describe('Debt Service', () => {
             expect(debtModel.getDebtById).toHaveBeenCalledWith(1, 1);
         });
     });
+
+    describe('getAmountSumsByState', () => {
+        it('should return amount sums by state when the model returns them', async () => {
+            debtModel.getAmountSumsByState.mockResolvedValue(debtStatesSummarized);
+
+            const amountSumsByState = await debtService.getAmountSumsByState();
+
+            expect(debtModel.getAmountSumsByState).toHaveBeenCalled();
+            expect(amountSumsByState).toEqual(debtStatesSummarized);
+        });
+
+        it('should throw an error when the model throws an error', async () => {
+            const error = new Error('Database error');
+            debtModel.getAmountSumsByState.mockRejectedValue(error);
+
+            await expect(debtService.getAmountSumsByState()).rejects.toThrow('Database error');
+            expect(debtModel.getAmountSumsByState).toHaveBeenCalled();
+        });
+    });
+
 
     describe('createDebt', () => {
         it('should return the new debt when the model creates it', async () => {
