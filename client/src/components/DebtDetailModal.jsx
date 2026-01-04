@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDebtStates } from '../context/DebtStatesContext';
 
-const DebtDetailModal = ({ isOpen, onClose, debt }) => {
+const DebtDetailModal = ({ isOpen, onClose, debt, onEdit, onDelete }) => {
   const { getStateNameById } = useDebtStates();
 
   const formatDate = (dateString) => {
@@ -13,6 +13,16 @@ const DebtDetailModal = ({ isOpen, onClose, debt }) => {
       style: 'currency',
       currency: 'USD'
     }).format(amount);
+  };
+
+  const handleEdit = (e) => {
+    onEdit(e, debt);
+    onClose(); 
+  };
+
+  const handleDelete = (e) => {
+    onDelete(e, debt.id);
+    onClose();
   };
 
   if (!isOpen || !debt) return null;
@@ -49,6 +59,10 @@ const DebtDetailModal = ({ isOpen, onClose, debt }) => {
               <span className="detail-value">{debt.description}</span>
             </div>
           )}
+        </div>
+        <div className="modal-actions">
+          <button className="edit-btn-modal" onClick={handleEdit}>Edit</button>
+          <button className="delete-btn-modal" onClick={handleDelete}>Delete</button>
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 import './HomePage.css';
 
 const HomePage = () => {
-  const { userId, logout } = useContext(AuthContext);
+  const { userId, logout, userEmail } = useContext(AuthContext);
   const { debtStates } = useDebtStates();
   const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -31,13 +31,17 @@ const HomePage = () => {
     }
   }, [userId, navigate]);
 
-  const fetchDebts = async () => {
+  const fetchDebts = async (stateId = null) => {
     if (!userId) return;
+    setLoading(true);
     try {
-      // Try using POST instead of GET with body
-      const response = await apiClient.post('/debts', {
-        userId: parseInt(userId)
-      });
+      const requestBody = {
+        userId: parseInt(userId),
+      };
+      if (stateId) {
+        requestBody.stateId = stateId;
+      }
+      const response = await apiClient.post('/debts', requestBody);
       setDebts(response.data);
     } catch (err) {
       setError('Failed to load debts');
@@ -54,9 +58,8 @@ const HomePage = () => {
 
 
   useEffect(() => {
-    setLoading(true);
-    fetchDebts();
-  }, [userId]);
+    fetchDebts(selectedFilterState);
+  }, [userId, selectedFilterState]);
 
   const handleLogout = () => {
     logout();
@@ -92,7 +95,7 @@ const HomePage = () => {
   };
 
   const handleDebtSuccess = () => {
-    fetchDebts();
+    fetchDebts(selectedFilterState);
   };
 
   const handleDeleteDebt = async (e, debtId) => {
@@ -117,7 +120,7 @@ const HomePage = () => {
           }
         });
         Swal.fire('Successfully deleted!', response.data.message, 'success');
-        fetchDebts();
+        fetchDebts(selectedFilterState);
       } catch (err) {
         console.error('Error deleting debt:', err);
         Swal.fire('Error!', 'Failed to delete debt.', 'error');
@@ -125,19 +128,17 @@ const HomePage = () => {
     }
   };
 
-  const filteredDebts = selectedFilterState ? debts.filter(debt => debt.state_id === selectedFilterState) : debts;
-
   return (
     <div className="home-container">
       {/* User Panel - Sidebar */}
       <div className="user-panel">
         <div className="user-info">
-          <h2>Welcome, User {userId}</h2>
+          <h2>Welcome, User {userEmail}</h2>
           <p>Your debt management dashboard</p>
         </div>
         <div className="user-actions">
           <button onClick={toggleTheme} className="theme-toggle-btn" title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
-            {isDarkMode ? '☀️' : '🌙'}
+            {isDarkMode ? 'Light Mode ☀️' : 'Dark Mode 🌙'}
           </button>
           <button onClick={handleLogout} className="logout-btn">
             Logout
@@ -170,7 +171,7 @@ const HomePage = () => {
           </div>
 
           <DebtTable
-            debts={filteredDebts}
+            debts={debts}
             loading={loading}
             error={error}
             onEdit={handleOpenEditModal}
@@ -194,6 +195,8 @@ const HomePage = () => {
         isOpen={isDetailOpen}
         onClose={handleCloseDetailModal}
         debt={selectedDebt}
+        onEdit={handleOpenEditModal}
+        onDelete={handleDeleteDebt}
       />
 
       {/* Floating Add Debt Button */}
