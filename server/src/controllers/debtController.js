@@ -50,6 +50,22 @@ exports.getAllDebtsByUserId = async (req, res, next) => {
     }
 };
 
+exports.getDebtsJSON = async (req, res, next) => {
+    try {
+        const userId = req.body?.userId;
+        if(!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        };
+
+        const debts = await debtService.getAllDebtsByUserId(userId);
+        res.send(debts);
+        res.status(200);
+    } catch (error) {
+        res.status(400).json({ message: error.detail });
+        next(error);
+    }
+};
+
 exports.getDebtsByStateAndUser = async (req, res, next) => {
     try {
         const { userId, stateId } = req.body;
