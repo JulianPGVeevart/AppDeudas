@@ -8,6 +8,7 @@ router.get('/detail/:debtId', debtController.getDebtById);
 
 //POST
 router.post('/', debtController.getAllDebtsByUserId); // Add POST route for getting debts
+router.post('/JSON', debtController.getDebtsJSON);
 router.post('/create', debtController.createDebt);
 
 //PUT
