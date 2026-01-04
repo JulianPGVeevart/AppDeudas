@@ -28,7 +28,7 @@ const LoginPage = () => {
     try {
       const response = await apiClient.post('/login', { email, password });
       if (response.data.id) {
-        login(response.data.id);
+        login(response.data);
         navigate('/debts'); // Navigate to home page after successful login
       } else {
         setError('Login failed - No User registered with that email.');
