@@ -16,7 +16,6 @@ const DebtRow = ({ debt, onEdit, onDelete, onViewDetails }) => {
 
   return (
     <tr onClick={() => onViewDetails(debt)}>
-      <td className="debt-id" data-label="ID">#{debt.id}</td>
       <td className="debt-amount" data-label="Amount">{formatCurrency(debt.amount)}</td>
       <td data-label="Date">{formatDate(debt.creation_date)}</td>
       <td data-label="Status">
@@ -64,7 +63,6 @@ const DebtTable = ({ debts, loading, error, onEdit, onDelete, onViewDetails }) =
       <table className="debts-table">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Amount</th>
             <th>Date</th>
             <th>Status</th>
