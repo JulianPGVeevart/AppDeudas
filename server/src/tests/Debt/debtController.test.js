@@ -28,6 +28,7 @@ describe('Debt Controller', () => {
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
+            send: jest.fn(),
         };
         next = jest.fn();
         jest.clearAllMocks();
@@ -101,6 +102,35 @@ describe('Debt Controller', () => {
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
             expect(next).toHaveBeenCalledWith(error);
+        });
+    });
+
+    describe('getDebtsJSON', () => {
+        it('should return 400 if userId is missing', async () => {
+            req.body = {}; // Missing userId
+            await debtController.getDebtsJSON(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: 'User ID is required' });
+        });
+
+        it('should throw an error if debtService.getAllDebtsByUserId throws an error', async () => {
+            req.body = {userId: '1'};
+            const error = new Error('Database error');
+            debtService.getAllDebtsByUserId.mockRejectedValue(error);
+            await debtController.getDebtsJSON(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.send).not.toHaveBeenCalled();
+            expect(next).toHaveBeenCalledWith(error);
+        });
+
+        it('should return the debts in json format', async () => {
+            req.body = {userId: '1'};
+            debtService.getAllDebtsByUserId.mockResolvedValue(debtsMock);
+
+            await debtController.getDebtsJSON(req, res, next);
+            expect(debtService.getAllDebtsByUserId).toHaveBeenCalledWith('1');
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.send).toHaveBeenCalledWith(debtsMock);
         });
     });
 

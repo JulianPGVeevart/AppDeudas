@@ -17,6 +17,19 @@ jest.mock('#models/DebtStates', () => ({
     getAllDebtStates: jest.fn(),
 }));
 
+// Tell Jest to mock the 'redis' module
+jest.mock('redis', () => ({
+    createClient: jest.fn().mockReturnValue({
+        connect: async  () => {},
+        get: jest.fn(),
+        set: jest.fn(),
+        del: jest.fn(),
+        isReady: false,
+        isOpen: false,
+        on: () => {}
+    }),
+}));
+
 describe('Debt Service', () => {
 
     beforeEach(() => {
