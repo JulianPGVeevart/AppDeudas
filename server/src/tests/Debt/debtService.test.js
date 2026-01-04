@@ -172,8 +172,9 @@ describe('Debt Service', () => {
     describe('deleteDebt', () => {
         it('should return the number of rows deleted', async () => {
             debtModel.deleteDebt.mockResolvedValue(1);
+            const mockDelete = {userId: 1, id: 1, stateId: 1} // Mocked 
 
-            const result = await debtService.deleteDebt(1, 1);
+            const result = await debtService.deleteDebt(mockDelete);
 
             expect(debtModel.deleteDebt).toHaveBeenCalledWith(1, 1);
             expect(result).toBe(1);
@@ -182,8 +183,9 @@ describe('Debt Service', () => {
         it('should throw an error when the model throws an error', async () => {
             const error = new Error('Database error');
             debtModel.deleteDebt.mockRejectedValue(error);
+            const mockDelete = {userId: 1, id: 1, stateId: 1} // Mocked 
 
-            await expect(debtService.deleteDebt(1, 1)).rejects.toThrow('Database error');
+            await expect(debtService.deleteDebt(mockDelete)).rejects.toThrow('Database error');
             expect(debtModel.deleteDebt).toHaveBeenCalledWith(1, 1);
         });
     });

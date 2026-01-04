@@ -1,7 +1,6 @@
 const debtService = require('#services/debtService');
 const debtModel = require('#models/Debt');
 const debtsMock = require('../mocks/DebtsMock.json');
-const debtStatesMock = require('../mocks/DebtStatesMock.json');
 const debtStatesSummarizedMock = require('../mocks/DebtStatesSummarizedMock.json');
 const cacheClient = require('#utils/redisClient');
 
@@ -198,20 +197,22 @@ describe('Debt Service with Caching', () => {
     describe('deleteDebt', () => {
         it('should cache debts after deletion', async () => {
             debtModel.deleteDebt.mockResolvedValue(1);
-
-            const result = await debtService.deleteDebt(1, 1);
+            const mockDelete = {userId: 1, id: 1, stateId: 1}
+            const result = await debtService.deleteDebt(mockDelete);
 
             expect(debtModel.deleteDebt).toHaveBeenCalledWith(1, 1);
             expect(cacheClient.del).toHaveBeenCalledWith('debts:1');
             expect (cacheClient.del).toHaveBeenCalledWith('amountSums:1');
+            expect(cacheClient.del).toHaveBeenCalledWith('debts:1:1');
             expect(result).toBe(1);
         });
 
         it('should not cache debts if cache is not available', async () => {
             debtModel.deleteDebt.mockResolvedValue(1);
             disableCache();
+            const mockDelete = {userId: 1, id: 1, stateId: 1}
 
-            const result = await debtService.deleteDebt(1, 1);
+            const result = await debtService.deleteDebt(mockDelete);
 
             expect(debtModel.deleteDebt).toHaveBeenCalledWith(1, 1);
             expect(cacheClient.del).not.toHaveBeenCalled();

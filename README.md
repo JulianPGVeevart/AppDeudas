@@ -66,24 +66,23 @@ INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (700, CURRENT
 <Summary>Backend</Summary>
 1.Crear un archivo .env en la carpeta server y cambie las variables con el de su postgresql local:
 ```
-# Postgres
 DB_USER=postgres
 DB_PASSWORD=postgres_password
 DB_HOST=localhost
 DB_NAME=postgres_db_name
 DB_PORT=5432
 PORT=5000
-
-# Redis
 REDIS_URL=redis://localhost:6379
 ```
 </details>
 
 ## Ejecucion
 1. Configura la base de datos
-2. Clona el repo
+2. Clona el repo: ```git clone https://github.com/JulianPGVeevart/AppDeudas.git```
 3. instala las dependencias con ```npm run install-all```
-4. Ejecuta el servidor y el cliente en local con ```npm run dev``` en la carpeta raiz /AppDeudas
+4. configura las variables de entorno (.env)
+5. Ejecuta el servidor y el cliente en local con ```npm run dev``` en la carpeta raiz /AppDeudas
+6. Ejecuta tu servidor de Redis en el puerto 6379 (opcional para probar el uso de cache)
 5. Abre el navegador en <link>http://localhost:5173</link> y verifica que funcione correctamente.
 
 ## Notas
@@ -95,3 +94,15 @@ Usuario: user2@test.com
 Contraseña: testpass
 
 y ya tendras informacion para probar el frontend.
+
+## Decisiones Tecnicas
+### Frontend
+1. Se usa React con Vite simplemente por experiencia propia y comodidad.
+2. Se usa localStorage para el manejo de la sesion activa ya que un sistema de autenticacion en el backend llevaria mas tiempo y complejidad, para fines de la prueba no lo considero necesario.
+3. Uso de axios para las consultas al backend.
+4. Uso de react-router-dom para el manejo de las rutas principales
+5. Uso de panel de usuario para deslogear, cambio de tema (dark / light) y algunas acciones personalizadas como exportar json y mostrar sumatoria de deudas por estado o tabla de deudas con filtro.
+6. Manejo mobile con menu desplegable, la vista principal contiene la lista de deudas con filtro o la sumatoria de deudas por estado.
+7. Editar/Eliminar desde vista de tabla o vista detalle para mayor flexibilidad.
+
+### Backend

@@ -129,15 +129,18 @@ exports.updateDebt = async (req, res, next) => {
 //DELETE
 exports.deleteDebt = async (req, res, next) => {
     try {
-        const [debtId, userId] = [req.body?.id, req.body?.userId];
-        if(!debtId) {
+        const debtInfo = req.body;
+        if(!debtInfo.id) {
             return res.status(400).json({ message: 'Debt Id is required' });
         }
-        if(!userId) {
+        if(!debtInfo.userId) {
             return res.status(400).json({ message: 'User ID is required' });
         }
+        if(!debtInfo.stateId) {
+            return res.status(400).json({ message: 'Debt state ID is required' });
+        }
 
-        const result = await debtService.deleteDebt(debtId, userId);
+        const result = await debtService.deleteDebt(debtInfo);
         if(result > 0) {
             return res.status(200).json({ message: `${result} rows deleted` });
         } else {

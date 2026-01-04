@@ -122,12 +122,14 @@ const createDebt = async (debtData) => {
 };
 exports.createDebt = createDebt;
 
-const deleteDebt = async (debtId, userId) => {
+const deleteDebt = async (debtInfo) => {
     try {
-        const result = await debtModel.deleteDebt(debtId, userId);
+        const { id, userId, stateId } = debtInfo;
+        const result = await debtModel.deleteDebt(id, userId);
         if(useCache()) {
             await cacheClient.del(`debts:${userId}`);
-            await cacheClient.del(`debt:${debtId}:${userId}`);
+            await cacheClient.del(`debts:${userId}:${stateId}`);
+            await cacheClient.del(`debt:${id}:${userId}`);
             await cacheClient.del(`amountSums:${userId}`);
         }
         return result;

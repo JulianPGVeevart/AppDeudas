@@ -370,29 +370,32 @@ describe('Debt Controller', () => {
         });
 
         it('should delete a debt successfully', async () => {
-            req.body = { id: 1, userId: 1 };
+            const mockDelete = {userId: 1, id: 1, stateId: 1}
+            req.body = mockDelete;
             debtService.deleteDebt.mockResolvedValue(1);
 
             await debtController.deleteDebt(req, res, next);
 
-            expect(debtService.deleteDebt).toHaveBeenCalledWith(1, 1);
+            expect(debtService.deleteDebt).toHaveBeenCalledWith(mockDelete);
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({ message: '1 rows deleted' });
         });
 
         it('should return 404 if debt not found or not from this user', async () => {
-            req.body = { id: 1, userId: 1 };
+            const mockDelete = {userId: 1, id: 1, stateId: 1}
+            req.body = mockDelete;
             debtService.deleteDebt.mockResolvedValue(0);
 
             await debtController.deleteDebt(req, res, next);
 
-            expect(debtService.deleteDebt).toHaveBeenCalledWith(1, 1);
+            expect(debtService.deleteDebt).toHaveBeenCalledWith(mockDelete);
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({ message: 'Debt not found or not from this user' });
         });
 
         it('should handle service errors', async () => {
-            req.body = { id: 1, userId: 1 };
+            const mockDelete = {userId: 1, id: 1, stateId: 1}
+            req.body = mockDelete;
             const error = new Error('Database error');
             error.detail = 'Database error';
             debtService.deleteDebt.mockRejectedValue(error);

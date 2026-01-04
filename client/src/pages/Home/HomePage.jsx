@@ -137,11 +137,6 @@ const HomePage = () => {
     fetchDebts(selectedFilterState);
   }, [userId, selectedFilterState]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   const handleOpenAddModal = () => {
     setModalMode('add');
     setSelectedDebt(null);
@@ -157,7 +152,6 @@ const HomePage = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedDebt(null);
   };
 
   const handleOpenDetailModal = (debt) => {
@@ -167,14 +161,13 @@ const HomePage = () => {
 
   const handleCloseDetailModal = () => {
     setIsDetailOpen(false);
-    setSelectedDebt(null);
   };
 
   const handleDebtSuccess = () => {
     fetchDebts(selectedFilterState);
   };
 
-  const handleDeleteDebt = async (e, debtId) => {
+  const handleDeleteDebt = async (e, debt) => {
     e.stopPropagation();
     
     const result = await Swal.fire({
@@ -192,7 +185,8 @@ const HomePage = () => {
         const response = await apiClient.delete(`/debts/delete`, {
           data: {
             userId: parseInt(userId),
-            id: parseInt(debtId)
+            stateId: parseInt(debt.state_id),
+            id: parseInt(debt.id)
           }
         });
         Swal.fire('Successfully deleted!', response.data.message, 'success');

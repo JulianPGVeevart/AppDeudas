@@ -34,7 +34,7 @@ const DebtRow = ({ debt, onEdit, onDelete, onViewDetails }) => {
           </button>
           <button
             className="delete-btn"
-            onClick={(e) => onDelete(e, debt.id)}
+            onClick={(e) => onDelete(e, debt)}
             title="Delete debt"
           >
             🗑️

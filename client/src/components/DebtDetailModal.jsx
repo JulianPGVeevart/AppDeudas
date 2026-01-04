@@ -21,7 +21,7 @@ const DebtDetailModal = ({ isOpen, onClose, debt, onEdit, onDelete }) => {
   };
 
   const handleDelete = (e) => {
-    onDelete(e, debt.id);
+    onDelete(e, debt);
     onClose();
   };
 
