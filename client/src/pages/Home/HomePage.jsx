@@ -56,6 +56,58 @@ const HomePage = () => {
     }
   };
 
+  const handleExportDebts = () => {
+    if (!userId) return;
+    setLoading(true);
+    apiClient.post(`/debts/JSON`,{userId: parseInt(userId)})
+      .then((response) => {
+        const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.style = 'display: none;';
+        a.download = 'user-debts-data.json';
+        document.body.appendChild(a);
+        Swal.fire({
+          icon: 'question',
+          title: 'Export Confirmation',
+          text: 'Are you sure you want to export your debts in JSON format?',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, export it!',
+          cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              a.click();
+              Swal.fire({
+                icon: 'success',
+                title: 'Export Successful',
+                text: 'Your debts have been successfully exported.',
+              });
+            } else {
+              Swal.fire({
+                icon: 'info',
+                title: 'Export Cancelled',
+                text: 'Your debts export has been cancelled.',
+              });
+            }
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          });
+      })
+      .catch((err) => {
+        console.error('Error exporting debts:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Export Error',
+          text: 'Unable to export your debts. Please try again later.',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+
 
   useEffect(() => {
     fetchDebts(selectedFilterState);
@@ -137,6 +189,9 @@ const HomePage = () => {
           <p>Your debt management dashboard</p>
         </div>
         <div className="user-actions">
+          <button onClick={handleExportDebts} className="profile-btn">
+            Export debts in JSON
+          </button>
           <button onClick={toggleTheme} className="theme-toggle-btn" title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
             {isDarkMode ? 'Light Mode ☀️' : 'Dark Mode 🌙'}
           </button>
