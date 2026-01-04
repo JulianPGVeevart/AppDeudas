@@ -24,14 +24,19 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+    if(isLogin ) {
+      handleLogin();
+    } else {
+      handleRegister();
+    }
+  };
+
+  const handleLogin = async () => {
     try {
       const response = await apiClient.post('/login', { email, password });
       if (response.data.id) {
         login(response.data);
         navigate('/debts'); // Navigate to home page after successful login
-      } else {
-        setError('Login failed - No User registered with that email.');
       }
     } catch (err) {
       setError('Login failed. Please check your credentials and try again.');
@@ -39,9 +44,28 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  const handleRegister = async () => {
+    try {
+      const response = await apiClient.post('/register', { email, password });
+      if(response.data.id) {
+        login(response.data); // Navigate to home page after successful register
+        navigate('/debts');
+      }
+    } catch (err) {
+      if(err.response.data.message) {
+        setError(err.response.data.message);
+        return;
+      }
+      setError('Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const isLogin = window.location.pathname === '/login';
   const loginWord = isLogin ? 'Login' : 'Register';
+  const loadingWord = isLogin ? 'Logging in...' : 'Registering...';
 
   return (
     <div className="login-container">
@@ -81,7 +105,7 @@ const LoginPage = () => {
             className="login-button"
             disabled={loading}
           >
-            {loading ? 'Logging in...' : loginWord}
+            {loading ? loadingWord : loginWord}
           </button>
 
           {isLogin && (
