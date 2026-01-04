@@ -31,6 +31,18 @@ class Debt {
         return rows[0];
     }
 
+    static async getAmountSumsByState(userId) {
+        const query = `
+            SELECT state_id, SUM(amount) AS total_amount
+            FROM ${tables.DEBT}
+            WHERE user_id = $1
+            GROUP BY state_id;
+        `;
+        const values = [userId];
+        const { rows } = await pool.query(query, values);
+        return rows;
+    }
+
     //POST
     static async createDebt(debtData) {
         const query = `

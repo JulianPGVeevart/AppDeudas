@@ -83,6 +83,20 @@ exports.getDebtsByStateAndUser = async (req, res, next) => {
     }
 }
 
+exports.getAmountSumsByState = async (req, res, next) => {
+    try {
+        const userId = req.body.userId;
+        if(!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+        const amountSums = await debtService.getAmountSumsByState(userId);
+        res.status(200).json(amountSums);
+    } catch (error) {
+        res.status(400).json({ message: error.detail });
+        next(error);
+    }
+};
+
 exports.createDebt = async (req, res, next) => {
     try {
         const debtData = getValidDebtData(req.body);
