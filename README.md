@@ -37,7 +37,11 @@ CREATE TABLE DEBT(
     USER_ID INT NOT NULL REFERENCES APP_USER(ID) ON DELETE CASCADE,
     STATE_ID INT NOT NULL REFERENCES DEBT_STATES(ID) ON DELETE CASCADE
 );
+```
 
+Ahora Ingresa la informacion basica en la base de datos:
+
+```SQL
 -- Example Independent Data --
 INSERT INTO DEBT_STATES (STATE_NAME) VALUES ('Pending');
 INSERT INTO DEBT_STATES (STATE_NAME) VALUES ('Partially Paid');
@@ -45,7 +49,9 @@ INSERT INTO DEBT_STATES (STATE_NAME) VALUES ('Paid');
 
 INSERT INTO APP_USER (EMAIL, PASSWORD) VALUES ('user@test.com', 'afa77cbbefbb867645306abe9082dfa0.1d79d6a54aaf8f64d035b7799e1a2fb8314de4b122412e4d76533e6d7a7d71767cf5f93e3f2122525f3387ca85a07f06b503d652c45bcc39cadf6ec66389c166');
 INSERT INTO APP_USER (EMAIL, PASSWORD) VALUES ('user2@test.com', '8b7d718cd02f3602b3c548975b7cd006.d743c7b27d5f9eaa9200cac243d5a0fd292b81569033f5b107989277553010be18b0a4f7edcfeb1c250fc8bd34aa0730116926bc370d6f92aae20107cb560465');
-
+```
+Ahora ingresa informacion de deudas de prueba en la base de datos:
+```SQL
 -- Example Dependent Data --
 INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (1000, CURRENT_DATE, 1, 1);
 INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (2000, CURRENT_DATE, 1, 1);
@@ -64,7 +70,8 @@ INSERT INTO DEBT (AMOUNT, CREATION_DATE, USER_ID, STATE_ID) VALUES (700, CURRENT
 ### Backend
 <details>
 <Summary>Backend</Summary>
-1.Crear un archivo .env en la carpeta server y cambie las variables con el de su postgresql local:
+1.Crear un archivo .env en la carpeta server y cambie las variables con el de su postgresql local y Redis:
+
 ```
 DB_USER=postgres
 DB_PASSWORD=postgres_password
@@ -76,14 +83,14 @@ REDIS_URL=redis://localhost:6379
 ```
 </details>
 
-## Ejecucion
+## Para la Ejecucion
 1. Configura la base de datos
 2. Clona el repo: ```git clone https://github.com/JulianPGVeevart/AppDeudas.git```
-3. instala las dependencias con ```npm run install-all```
+3. instala las dependencias con ```npm run install-all``` desde el folder root /AppDeudas
 4. configura las variables de entorno (.env)
-5. Ejecuta el servidor y el cliente en local con ```npm run dev``` en la carpeta raiz /AppDeudas
-6. Ejecuta tu servidor de Redis en el puerto 6379 (opcional para probar el uso de cache)
-5. Abre el navegador en <link>http://localhost:5173</link> y verifica que funcione correctamente.
+5. Ejecuta el backend y el frontend en local con el comando ```npm run dev``` en la carpeta raiz /AppDeudas
+6. (opcional) Ejecuta tu servidor de Redis en el puerto 6379 para probar el uso de cache
+7. Abre el navegador en <link>http://localhost:5173</link> y verifica que funcione correctamente.
 
 ## Notas
 Si creaste la informacion de prueba en la base de datos, intenta loggearte con las siguientes credenciales:
@@ -94,24 +101,3 @@ Usuario: user2@test.com
 Contraseña: testpass
 
 y ya tendras informacion para probar el frontend.
-
-## Decisiones Tecnicas
-### Frontend
-1. Se usa React con Vite simplemente por experiencia propia y comodidad.
-2. Se usa localStorage para el manejo de la sesion activa ya que un sistema de autenticacion en el backend llevaria mas tiempo y complejidad, para fines de la prueba no lo considero necesario.
-3. Uso de axios para las consultas al backend.
-4. Uso de react-router-dom para el manejo de las rutas principales
-5. Uso de panel de usuario para deslogear, cambio de tema (dark / light) y algunas acciones personalizadas como exportar json y mostrar sumatoria de deudas por estado o tabla de deudas con filtro.
-6. Manejo mobile con menu desplegable, la vista principal contiene la lista de deudas con filtro o la sumatoria de deudas por estado.
-7. Editar/Eliminar desde vista de tabla o vista detalle para mayor flexibilidad.
-
-### Backend
-1. Uso de Express como tecnologia base para la conexion con la base de datos
-2. 3 modelos, 2 servicios ya que uno de los modelos se usa una unica vez por dependencia del otro (debt depende de debt_states) y que dicha tabla no se actualiza por ahora.
-3. Uso de Redis como capa de cache ya que no se cuenta con AWS, Solo la informacion sobre las deudas es almacenada en cache, los datos de usuario y estados de deudas se manejan por contexto en el Frontend.
-4. Manejo de encriptado con Salt para el password, no lo vi necesario para el email por temas de pruebas durante el desarrollo, pero podria ser igualmente encriptado.
-5. Endpoint de las agregaciones segun el estado de deuda (Pending, Partially Paid, Paid) (Seccion En la App)
-6. Endpoint para exportar deudas del usuario en JSON (Boton en el panel de Usuario)
-7. Test unitarios de los servicios y los controladores.
-8. Endpoint especifico para obtener deudas segun el estado de deuda (Pending, Partially Paid, Paid)
-9. Se realiza validacion de que el usuario que pide por la informacion de las deudas sea el propietario de las mismas. (Usuario en sesion Vs Usuario de la deuda en la base de datos).
