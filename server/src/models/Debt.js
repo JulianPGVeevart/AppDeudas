@@ -11,6 +11,15 @@ class Debt {
         const { rows } = await pool.query(query,values);
         return rows;
     }
+    
+    static async getDebtsByStateAndUser(userId, stateId) {
+        const query = `
+            SELECT * FROM ${tables.DEBT} WHERE USER_ID = $1 AND STATE_ID = $2;
+        `;
+        const values = [userId, stateId];
+        const { rows } = await pool.query(query, values);
+        return rows;
+    }
 
     static async getDebtById(debtId, userId) {
         //validate user ownership when consulting details from debts that are only theirs
