@@ -110,6 +110,7 @@ const createDebt = async (debtData) => {
         if(useCache()) {
             await cacheClient.del(`debts:${debtData.user_id}`);
             await cacheClient.del(`debts:${debtData.user_id}:${newDebt.state_id}`);
+            await cacheClient.del(`amountSums:${debtData.user_id}`);
         }
         return newDebt;
     } catch (error) {
@@ -127,6 +128,7 @@ const deleteDebt = async (debtId, userId) => {
         if(useCache()) {
             await cacheClient.del(`debts:${userId}`);
             await cacheClient.del(`debt:${debtId}:${userId}`);
+            await cacheClient.del(`amountSums:${userId}`);
         }
         return result;
     } catch (error) {
@@ -144,6 +146,7 @@ const updateDebt = async (debtData) => {
             await cacheClient.del(`debts:${updatedDebt.user_id}`);
             await cacheClient.del(`debts:${updatedDebt.user_id}:${updatedDebt.state_id}`);
             await cacheClient.del(`debt:${debtData.id}:${debtData.user_id}`);
+            await cacheClient.del(`amountSums:${updatedDebt.user_id}`);
         }
 
         return updatedDebt;
